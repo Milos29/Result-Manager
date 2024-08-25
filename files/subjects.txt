@@ -1,0 +1,78 @@
+//Ime predmeta, espb, semestar, obavezan('o') ili izborni('i'),skracen naziv od 4 karaktera
+Matematika 1,5,1,o,Mat1
+Fizika,5,1,o, Fiz
+Programiranje 1,5,1,o,  P1
+Engleski jezik - nizi,3,1,o,Eng1
+Praktikum iz programiranja 1,3,1,o, Pp1
+Praktikum iz koriscenja racunara,2,1,i, Pkr
+Praktikum iz matematike 1,2,1,i,Pmt1
+Sociologija,2,1,i, Soc
+Osnovi elektronike,5,1,o,  Oe
+Matematika 2,5,2,o,Mat2
+Programiranje 2,5,2,o,  P2
+Algoritmi i strukture podataka 1,5,2,o,Asp1
+Osnovi racunarske tehnike 1,5,2,o,Ort1
+Praktikum iz programiranja 2,3,2,o, Pp2
+Praktikum iz osnova racunarske tehnike,3,2,o,Port
+Engleski jezik - visi,2,2,o,Eng2
+Uvod u menadzment,2,2,i,  Um
+Racunarsko modelovanje fizickih pojava,2,2,i,Rmfp
+Praktikum iz matematike 2,2,2,i,Pmt2
+Praktikum iz poslovne komunikacije,2,2,i, Ppk
+Baze podataka 1,6,3,o, Bp1
+Objektno orijentisano programiranje 1,6,3,o, Oo1
+Osnovi racunarske tehnike 2,6,3,o,Ort2
+Algoritmi i strukture podataka 2,6,3,o,Asp2
+Principi modernih telekomunikacija,6,3,i, Pmt
+Numericka analiza i diskretna matematika,6,3,i, Nad
+Signali i sistemi,6,3,i, Sis
+Objektno orijentisano programiranje 2,6,4,o, Oo2
+Operativni sistemi 1,6,4,o, Os1
+Arhitektura racunara,6,4,o,  Ar
+Racunarske mreze 1,6,4,o, Rm1
+Praktikum iz poslovne komunikacije,3,4,i, Ppk
+Praktikum iz operativnih sistema,3,4,i, Pos
+Veb dizajn,6,4,i,  Vd
+Verovatnoca I statistika,6,4,i, Vis
+Praktikum iz objektno orijentisanog programiranja,3,4,i,Poop
+Osnovi digitalne elektronike,6,4,i, Ode
+Projektovanje softvera,6,5,o,  Ps
+Informacioni sistemi 1,6,5,o, Is1
+Racunarske mreze 2,6,5,i, Rm2
+Operativni sistemi 2,6,5,i, Os2
+Arhitektura i organizacija racunara 1,6,5,i,Aor1
+Testiranje softvera,6,5,i,  Ts
+Neuralne mreze,6,5,i,  Nm
+Inteligentni sistemi,6,5,i,  Is
+Veb dizajn,6,6,i,  Vd
+Konkurentno i distribuirano programiranje,6,6,o, Kdp
+Principi softverskog inzenjerstva,6,6,o, Psi
+Sistemski softver,6,6,i,  SS
+Infrastruktura za elektronsko poslovanje,6,6,i, Iep
+Upravljanje u realnom vremenu,6,6,i, Urv
+Upravljanje softverskim projektima,6,6,i, Usp
+Softverski alati baza podataka,6,6,i, Sab
+Arhitektura i organizacija racunara 2,6,6,i,Aor2
+Baze podataka 2,6,6,i, Bp2
+Racunarska grafika,6,6,i,  Rg
+Inteligentni sistemi,6,7,i,  Is
+Programski prevodioci 1,6,7,o,Ppi1
+Mikroprocesorski sistemi,6,7,o,Mips
+Programiranje internet aplikacija,6,7,o, Pia
+Multiprocesorski sistemi,6,7,i,Mups
+Racunarski VLSI sistemi,6,7,i,Vlsi
+Informacioni sistemi 2,6,7,i, Is2
+Inzenjerski optimizacioni algoritmi,6,7,i, Ioa
+Programiranje mobilnih uredjaja,6,7,i, Pmu
+Softverski alati baza podataka,6,8,i, Sab
+Veb dizajn,6,8,i,  Vd
+Strucna praksa,2,8,o,  Sp
+Zastita podataka,6,8,o,  Zp
+Performanse racunarskih sistema,6,8,o, Prs
+Baze podataka 2,6,8,i, Bp2
+Arhitektura i organizacija racunara 2,6,8,i,Aor2
+Sistemski softver,6,8,i,  Ss
+Upravljanje u realnom vremenu,6,8,i, Urv
+Upravljanje softverskim projektima,6,8,i, Usp
+Infrastruktura za elektronsko poslovanje,6,8,i, Iep
+Racunarska grafika,6,8,i,  Rg

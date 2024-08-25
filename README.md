@@ -1,2 +1,1 @@
-# Result-Manager
-Ranks students based on exams
+App that ranks students based on exam results
