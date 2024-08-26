@@ -5,7 +5,7 @@ def loadListOfResults():
     lst = list()
     with open("files/listOfResults.txt", "r", encoding="utf-8") as f:
         for line in f.readlines():
-            lst.append(line)
+            lst.append(line.strip())
     return lst
 
 
@@ -64,7 +64,7 @@ def saveResult(fileName, lst):
             line = line[:line.index("соба") - 1]
         if "ЕТФ" in line:
             line = line[:line.index("ЕТФ") - 1]
-        if ":" not in line and '2023/0' in line and line[-1].isdigit():
+        if ":" not in line and '/0' in line and line[-1].isdigit():
             if line[4] == '/':
                 text.append(line)
             else:

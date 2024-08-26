@@ -56,6 +56,7 @@ class tkinterApp(tk.Tk):
         def on_closing():
             self.destroy()
             saveSettings(yearAdm, year)
+            print(listOfResults)
             saveListOfResults(listOfResults)
 
         on_form_loaded()
@@ -200,7 +201,28 @@ class Page1(tk.Frame):
 class Page2(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        Font2 = ("Arial", 10)
+        container = tk.Frame(self, width=0.3 * windowWidth, height=0.7 * windowHeight)
+        container.place(x=0.05 * windowWidth, y=0.05 * windowHeight)
+        container.update_idletasks()
 
+        style = ttk.Style()
+        style.configure("Custom.Listbox", font=Font2)
+        scrollbarx = ttk.Scrollbar(container, orient=tk.HORIZONTAL)
+        scrollbary = ttk.Scrollbar(container)
+        listbox = tk.Listbox(container, xscrollcommand=scrollbarx.set, yscrollcommand=scrollbary.set)
+        scrollbarx.configure(command=listbox.xview)
+        scrollbary.configure(command=listbox.yview)
+        scrlH = 20
+        listbox.place(h=container.winfo_height() - scrlH, w=container.winfo_width() - scrlH, x=0, y=0)
+        scrollbarx.place(h=scrlH, w=container.winfo_width() - scrlH, x=0, y=container.winfo_height() - scrlH)
+        scrollbary.place(h=container.winfo_height() - scrlH, w=scrlH, x=container.winfo_width() - scrlH, y=0)
+
+        def loadResultsToPage2():
+            listbox.delete(0,tk.END)
+            for r in listOfResults:
+                listbox.insert(tk.END, r)
+        loadResultsToPage2()
 
 class Page3(tk.Frame):
     def __init__(self, parent, controller):
@@ -290,23 +312,12 @@ class Page3(tk.Frame):
             term = cmbTerm.get()[:3]
             fileName = "files/results/" + subject + "-" + term + "-"
             num = 1
+            print("list of results", listOfResults)
             while fileName + str(num) + ".txt" in listOfResults:
                 num += 1
             fileName += str(num) + ".txt"
             if saveResult(fileName, listboxText) == 1:
                 listOfResults.append(fileName)
-            #
-            #
-            #
-            #
-            # Treba rok da se doda
-            #
-            #
-            #
-            #
-            #
-            #
-            #
 
         btnAddResult = tk.Button(self, text="Dodaj rok", font=SettingsFont, command=addResult)
         btnAddResult.place(x=0.7 * windowWidth, y=550)
