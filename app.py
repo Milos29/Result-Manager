@@ -18,7 +18,6 @@ currentPageNumber = 0
 filePath = ""
 
 listOfResults = list()
-data = dict()
 yearAdm = 0
 year = 0
 subjects = dict()
@@ -49,17 +48,13 @@ class tkinterApp(tk.Tk):
         self.title("Lista")
 
         def on_form_loaded():
-            global yearAdm, year, listOfResults, subjects, data
+            global yearAdm, year, listOfResults, subjects
             yearAdm, year = loadSettings()
             listOfResults = loadListOfResults()
-            data = loadResults()
             subjects = loadSubjects()
 
         def on_closing():
             self.destroy()
-            # ||||||||||||||||||||||||
-            saveData(data)
-
             saveSettings(yearAdm, year)
             saveListOfResults(listOfResults)
 

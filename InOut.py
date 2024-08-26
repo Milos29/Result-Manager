@@ -46,18 +46,6 @@ def saveListOfResults(lst):
             print(l, file=f)
 
 
-def saveData(data):
-    with open("files/podaci.txt", "w", encoding="utf8") as f:
-        for predmet in data:
-            if len(data[predmet]) > 0:
-                print("predmet:", predmet, file=f)
-            for rok, spisak in data[predmet]:
-                print("rok:", rok, file=f)
-                for red in spisak:
-                    print(red, file=f)
-                print("", file=f)
-
-
 def saveSettings(yearAdm, year):
     with open("files/settings.txt", "w", encoding="utf-8") as f:
         print(yearAdm, file=f)
@@ -89,26 +77,6 @@ def saveResult(fileName, lst):
             print(line, file=f)
     return 1
 
+
 def loadResults1(lst):
     students = dict()
-
-
-def loadResults():
-    grades = dict()
-    subject = ""
-    term = ""
-    data = []
-    with open("files/podaci.txt", "r", encoding="utf8") as f:
-        for line in f.readlines():
-            if "predmet:" in line:
-                subject = line.split(" ")[1].strip()
-                if subject not in grades:
-                    grades[subject] = []
-            elif "rok:" in line:
-                term = line.split(" ")[1].strip()
-            elif line == "\n":
-                grades[subject].append((term, data))
-                data = []
-            else:
-                data.append(line.strip())
-    return grades
