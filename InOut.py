@@ -1,3 +1,4 @@
+import os
 from datetime import date
 
 
@@ -80,3 +81,16 @@ def saveResult(fileName, lst):
 
 def loadResults1(lst):
     students = dict()
+
+
+def getResult(fileName):
+    lst = []
+    with open(fileName, "r", encoding="utf-8") as f:
+        for line in f.readlines():
+            lst.append(line.strip())
+        return lst
+
+
+def deleteFile(fileName):
+    if os.path.exists(fileName):
+        os.remove(fileName)

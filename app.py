@@ -56,7 +56,6 @@ class tkinterApp(tk.Tk):
         def on_closing():
             self.destroy()
             saveSettings(yearAdm, year)
-            print(listOfResults)
             saveListOfResults(listOfResults)
 
         on_form_loaded()
@@ -202,27 +201,104 @@ class Page2(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         Font2 = ("Arial", 10)
-        container = tk.Frame(self, width=0.3 * windowWidth, height=0.7 * windowHeight)
-        container.place(x=0.05 * windowWidth, y=0.05 * windowHeight)
-        container.update_idletasks()
+
+        # listbox1 is for showing which results were saved
+
+        container1 = tk.Frame(self, width=0.3 * windowWidth, height=0.7 * windowHeight)
+        container1.place(x=0.05 * windowWidth, y=0.05 * windowHeight)
+        container1.update_idletasks()
 
         style = ttk.Style()
         style.configure("Custom.Listbox", font=Font2)
-        scrollbarx = ttk.Scrollbar(container, orient=tk.HORIZONTAL)
-        scrollbary = ttk.Scrollbar(container)
-        listbox = tk.Listbox(container, xscrollcommand=scrollbarx.set, yscrollcommand=scrollbary.set)
-        scrollbarx.configure(command=listbox.xview)
-        scrollbary.configure(command=listbox.yview)
+        scrollbarx1 = ttk.Scrollbar(container1, orient=tk.HORIZONTAL)
+        scrollbary1 = ttk.Scrollbar(container1)
+        listbox1 = tk.Listbox(container1, xscrollcommand=scrollbarx1.set,
+                              yscrollcommand=scrollbary1.set, activestyle="none")
+        scrollbarx1.configure(command=listbox1.xview)
+        scrollbary1.configure(command=listbox1.yview)
         scrlH = 20
-        listbox.place(h=container.winfo_height() - scrlH, w=container.winfo_width() - scrlH, x=0, y=0)
-        scrollbarx.place(h=scrlH, w=container.winfo_width() - scrlH, x=0, y=container.winfo_height() - scrlH)
-        scrollbary.place(h=container.winfo_height() - scrlH, w=scrlH, x=container.winfo_width() - scrlH, y=0)
+        listbox1.place(h=container1.winfo_height() - scrlH, w=container1.winfo_width() - scrlH, x=0, y=0)
+        scrollbarx1.place(h=scrlH, w=container1.winfo_width() - scrlH, x=0, y=container1.winfo_height() - scrlH)
+        scrollbary1.place(h=container1.winfo_height() - scrlH, w=scrlH, x=container1.winfo_width() - scrlH, y=0)
+
+        # used to track if different listbox1 item is selected, so that unnecessary result loads aren't done
+        global old_ind_page2
+        old_ind_page2 = -1
+
+        def changeSelectedResult(event):
+            ind = listbox1.curselection()
+            global old_ind_page2
+            if ind and ind[0] != old_ind_page2:
+                old_ind_page2 = ind[0]
+                listbox2.delete("1.0", tk.END)
+                r = getResult(listbox1.get(ind[0]))
+                for line in r:
+                    listbox2.insert(tk.END, line + "\n")
+
+        listbox1.bind("<<ListboxSelect>>", changeSelectedResult)
+
+        # listbox2 is for showing selected result
+        container2 = tk.Frame(self, width=0.4 * windowWidth, height=0.7 * windowHeight)
+        container2.place(x=0.45 * windowWidth, y=0.05 * windowHeight)
+        container2.update_idletasks()
+
+        scrollbarx2 = ttk.Scrollbar(container2, orient=tk.HORIZONTAL)
+        scrollbary2 = ttk.Scrollbar(container2)
+        listbox2 = tk.Text(container2, xscrollcommand=scrollbarx2.set, wrap="none",
+                           yscrollcommand=scrollbary2.set, undo=True)
+        scrollbarx2.configure(command=listbox2.xview)
+        scrollbary2.configure(command=listbox2.yview)
+        scrlH = 20
+        listbox2.place(h=container2.winfo_height() - scrlH, w=container2.winfo_width() - scrlH, x=0, y=0)
+        scrollbarx2.place(h=scrlH, w=container2.winfo_width() - scrlH, x=0, y=container2.winfo_height() - scrlH)
+        scrollbary2.place(h=container2.winfo_height() - scrlH, w=scrlH, x=container2.winfo_width() - scrlH, y=0)
 
         def loadResultsToPage2():
-            listbox.delete(0,tk.END)
+            listbox1.delete(0, tk.END)
+            global old_ind_page2
+            old_ind_page2 = -1
             for r in listOfResults:
-                listbox.insert(tk.END, r)
+                listbox1.insert(tk.END, r)
+
         loadResultsToPage2()
+
+        def removeResult():
+            ind = listbox1.curselection()
+            if not ind:
+                messagebox.showerror("Greska", "Niste izabrali rok koji zelite da obrisete.")
+                return
+            shouldDelRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izbrisete izabrani rok?")
+
+            if shouldDelRes:
+                resFileName = listbox1.get(ind[0])
+                deleteFile(resFileName)
+                listOfResults.remove(resFileName)
+                loadResultsToPage2()
+                listbox2.delete("1.0", tk.END)
+
+        btnRemoveResult = tk.Button(self, text="Ukloni rok", font=SettingsFont, command=removeResult)
+        btnRemoveResult.place(x=0.85 * windowWidth, y=0.8 * windowHeight)
+
+        def alterResult():
+            ind = old_ind_page2
+            if ind == -1:
+                messagebox.showerror("Greska", "Niste izabrali rok koji zelite da izmenite.")
+                return
+            res = listbox2.get("1.0", tk.END)
+            resFileName = listbox1.get(ind)
+            if len(res) < 1:
+                messagebox.showerror("Greska", "Ne mozete da izmenite rok na ovaj naccin.")
+                return
+            shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izmenite " + resFileName[
+                                                                            resFileName.rindex("/")+1:] + " ?")
+
+            if shouldAltRes:
+                saveResult(resFileName, res)
+                messagebox.showinfo("Obavesetenje", "Izabrani fajl je izmenjen.")
+
+        btnAlterResult = tk.Button(self, text="Izmeni rok", font=SettingsFont, command=alterResult)
+        btnAlterResult.place(x=0.72 * windowWidth, y=0.8 * windowHeight)
+
 
 class Page3(tk.Frame):
     def __init__(self, parent, controller):
@@ -237,7 +313,8 @@ class Page3(tk.Frame):
         style.configure("Custom.Listbox", font=Font2)
         scrollbarx = ttk.Scrollbar(container, orient=tk.HORIZONTAL)
         scrollbary = ttk.Scrollbar(container)
-        listbox = tk.Text(container, wrap="none", xscrollcommand=scrollbarx.set, yscrollcommand=scrollbary.set)
+        listbox = tk.Text(container, wrap="none", xscrollcommand=scrollbarx.set,
+                          yscrollcommand=scrollbary.set, undo=True)
         scrollbarx.configure(command=listbox.xview)
         scrollbary.configure(command=listbox.yview)
         scrlH = 20
@@ -306,18 +383,33 @@ class Page3(tk.Frame):
             subject = cmbSubject.get()
             listboxText = listbox.get("1.0", tk.END)
             if len(listboxText) < 11:
+                messagebox.showerror("Obavestenje", "Niste uneli vazeci rok.")
                 return
             listbox.delete("1.0", tk.END)
             cmbSubject.set("")
             term = cmbTerm.get()[:3]
             fileName = "files/results/" + subject + "-" + term + "-"
             num = 1
-            print("list of results", listOfResults)
             while fileName + str(num) + ".txt" in listOfResults:
                 num += 1
             fileName += str(num) + ".txt"
             if saveResult(fileName, listboxText) == 1:
                 listOfResults.append(fileName)
+                # loadResultsToPage2()
+                # doesn't change page2 when adding new results, instead you need to close and open app to see new results
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+
+            else:
+                messagebox.showerror("Obavestenje", "Niste uneli vazeci rok.")
 
         btnAddResult = tk.Button(self, text="Dodaj rok", font=SettingsFont, command=addResult)
         btnAddResult.place(x=0.7 * windowWidth, y=550)
