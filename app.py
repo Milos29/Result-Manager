@@ -4,9 +4,12 @@ from InOut import *
 
 from clipboard import copyToClipboard
 
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog, font
+from ButtonRadiobutton import *
 
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog
+
+# Some fonts used for widgets
 FONT1 = ("Verdana", 35)
 SettingsFont = ('Verdana', 15)
 SettingsFontSmaller = ('Verdana', 10)
@@ -23,21 +26,38 @@ year = 0
 subjects = dict()
 
 
+# Sets global window size variables
 def setWindowSize(wt, ht):
     global windowWidth, windowHeight
     windowWidth = wt
     windowHeight = ht
 
 
+# Loading data when loading app
+def on_app_loading():
+    global yearAdm, year, listOfResults, subjects
+    yearAdm, year = loadSettings()
+    listOfResults = loadListOfResults()
+    subjects = loadSubjects()
+
+
+# Saving data when closing app
+def on_app_closing(self):
+    self.destroy()
+    saveSettings(yearAdm, year)
+    saveListOfResults(listOfResults)
+
+
+# Main app class
 class tkinterApp(tk.Tk):
-    def show_frame(self, cont):
-        frame = self.frames[cont]
-        frame.tkraise()
+    def show_page(self, Page):
+        page = self.pages[Page]
+        page.tkraise()
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        wp = 0.839  # procenat sirine ekrana
-        hp = 0.7  # procenat duzine ekrana
+        wp = 0.839  # percentage of width of the screen
+        hp = 0.7  # percentage of height of the screen
         fw = self.winfo_screenwidth()
         fh = self.winfo_screenheight()
         setWindowSize(int(fw * wp), int(fh * hp))
@@ -46,64 +66,41 @@ class tkinterApp(tk.Tk):
         self.minsize(windowWidth, windowHeight)
         self.iconbitmap("images/icon1.ico")
         self.title("Lista")
+        on_app_loading()
+        self.protocol("WM_DELETE_WINDOW", func=lambda: on_app_closing(self))
 
-        def on_form_loaded():
-            global yearAdm, year, listOfResults, subjects
-            yearAdm, year = loadSettings()
-            listOfResults = loadListOfResults()
-            subjects = loadSubjects()
-
-        def on_closing():
-            self.destroy()
-            saveSettings(yearAdm, year)
-            saveListOfResults(listOfResults)
-
-        on_form_loaded()
-        self.protocol("WM_DELETE_WINDOW", func=on_closing)
-
-        container1 = tk.Frame(self)
+        # Container for holding ButtonRadiobuttons on top
+        self.container1 = tk.Frame(self)
         cnt1h = 30
-        container1.place(height=cnt1h, width=fw)
+        self.container1.place(height=cnt1h, width=fw)
 
-        class ButtonRadiobutton(tk.Button):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self.config(
-                    font=('Verdana', 10),
-                    # activebackground='lightgrey',
-                    background='lightgrey',
-                    foreground='black',
-                    borderwidth=0,
-                    width=36
-                )
+        self.radio1 = ButtonRadiobutton(self, text='Lista', command=lambda: showCurrentPage(1))
+        self.radio1.grid(row=0, column=0, padx=0, pady=0)
 
-        radio1 = ButtonRadiobutton(self, text='Lista', command=lambda: showCurrentPage(1))
-        radio1.grid(row=0, column=0, padx=0, pady=0)
+        self.radio2 = ButtonRadiobutton(self, text='Rokovi', command=lambda: showCurrentPage(2))
+        self.radio2.grid(row=0, column=1, padx=0, pady=0)
 
-        radio2 = ButtonRadiobutton(self, text='Rokovi', command=lambda: showCurrentPage(2))
-        radio2.grid(row=0, column=1, padx=0, pady=0)
+        self.radio3 = ButtonRadiobutton(self, text='Dodaj rok', command=lambda: showCurrentPage(3))
+        self.radio3.grid(row=0, column=2, padx=0, pady=0)
 
-        radio3 = ButtonRadiobutton(self, text='Dodaj rok', command=lambda: showCurrentPage(3))
-        radio3.grid(row=0, column=2, padx=0, pady=0)
+        self.radio4 = ButtonRadiobutton(self, text='Podesavanja', command=lambda: showCurrentPage(4))
+        self.radio4.grid(row=0, column=3, padx=0, pady=0)
 
-        radio4 = ButtonRadiobutton(self, text='Podesavanja', command=lambda: showCurrentPage(4))
-        radio4.grid(row=0, column=3, padx=0, pady=0)
-
-        rbs = [radio1, radio2, radio3, radio4]
+        rbs = [self.radio1, self.radio2, self.radio3, self.radio4]
         pages = [Page1, Page2, Page3, Page4]
 
-        container = tk.Frame(self)
-        container.place(height=fh - cnt1h, width=fw, y=cnt1h)
+        # Container for holding pages
+        self.container = tk.Frame(self)
+        self.container.place(height=fh - cnt1h, width=fw, y=cnt1h)
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
 
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        self.pages = {}
 
-        self.frames = {}
-
-        for F in pages:
-            frame = F(container, self)
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
+        for Page in pages:
+            page = Page(parent=self.container)
+            self.pages[Page] = page
+            page.grid(row=0, column=0, sticky="nsew")
 
         def showCurrentPage(val):
             if val < 1 or val > 4:
@@ -114,14 +111,15 @@ class tkinterApp(tk.Tk):
             rbs[currentPageNumber - 1].config(background='lightgrey')
             rbs[val - 1].config(background='lightblue')
             currentPageNumber = val
-            self.show_frame(pages[currentPageNumber - 1])
+            self.show_page(pages[currentPageNumber - 1])
 
         showCurrentPage(1)
 
 
+# Page class for showing students ranked
 class Page1(tk.Frame):
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.update()
         style = ttk.Style()
@@ -197,8 +195,9 @@ class Page1(tk.Frame):
         btn.place(x=0.94 * windowWidth, y=0.01 * windowHeight, w=0.05 * windowWidth)
 
 
+# Page class for seeing, changing and deleting saved results
 class Page2(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         Font2 = ("Arial", 10)
 
@@ -290,7 +289,8 @@ class Page2(tk.Frame):
                 messagebox.showerror("Greska", "Ne mozete da izmenite rok na ovaj naccin.")
                 return
             shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izmenite " + resFileName[
-                                                                            resFileName.rindex("/")+1:] + " ?")
+                                                                                                 resFileName.rindex(
+                                                                                                     "/") + 1:] + " ?")
 
             if shouldAltRes:
                 saveResult(resFileName, res)
@@ -300,8 +300,9 @@ class Page2(tk.Frame):
         btnAlterResult.place(x=0.72 * windowWidth, y=0.8 * windowHeight)
 
 
+# Page class for adding results
 class Page3(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
         Font2 = ("Arial", 10)
@@ -415,8 +416,9 @@ class Page3(tk.Frame):
         btnAddResult.place(x=0.7 * windowWidth, y=550)
 
 
+# Settings page class
 class Page4(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
         lblYearAdm = tk.Label(self, text="Godina upisa", font=SettingsFont)

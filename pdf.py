@@ -5,6 +5,8 @@ sys.path.insert(0, 'PyPDF2')
 import PyPDF2
 
 
+# Reads pdf file and returns list of all lines in it, but removes all
+# data in each line up until student index and removes room name at the end of each line, if there is any
 def read_pdf(file_path):
     if file_path == "":
         return list()

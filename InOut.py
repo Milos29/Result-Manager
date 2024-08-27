@@ -1,7 +1,7 @@
 import os
 from datetime import date
 
-
+# Returns list of all result filepaths
 def loadListOfResults():
     lst = list()
     with open("files/listOfResults.txt", "r", encoding="utf-8") as f:
@@ -10,7 +10,7 @@ def loadListOfResults():
     return lst
 
 
-# Returns yearAdm,year
+# Returns yearAdm(year of admission),year(which year of studies)
 def loadSettings():
     with open("files/settings.txt", "r") as f:
         s = f.readlines()
@@ -19,7 +19,7 @@ def loadSettings():
         else:
             return int(s[0]), int(s[1])
 
-
+# Returns dictionary of all subjects and their data
 def loadSubjects():
     subjects = dict()
     for i in range(1, 9):
@@ -41,18 +41,21 @@ def loadSubjects():
     return subjects
 
 
+# Saves all result filepaths
 def saveListOfResults(lst):
     with open("files/listOfResults.txt", "w", encoding="utf-8") as f:
         for l in lst:
             print(l, file=f)
 
 
+# Saves settings like yearAdm(year of admission),year(which year of studies)
 def saveSettings(yearAdm, year):
     with open("files/settings.txt", "w", encoding="utf-8") as f:
         print(yearAdm, file=f)
         print(year, file=f)
 
 
+# Saves result to a given file
 def saveResult(fileName, lst):
     text = []
     endInd = 0
@@ -83,6 +86,7 @@ def loadResults1(lst):
     students = dict()
 
 
+# Returns result from a given file
 def getResult(fileName):
     lst = []
     with open(fileName, "r", encoding="utf-8") as f:
@@ -90,7 +94,7 @@ def getResult(fileName):
             lst.append(line.strip())
         return lst
 
-
+# Returns given file
 def deleteFile(fileName):
     if os.path.exists(fileName):
         os.remove(fileName)
