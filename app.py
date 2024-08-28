@@ -41,11 +41,6 @@ def on_app_loading():
     yearAdm, year, espb = loadSettings()
     listOfResults = loadListOfResults()
     subjects = loadSubjects()
-    students = loadResults(listOfResults, subjects)
-
-    print("Students")
-    for student in sorted(students,key=lambda x: -students[x]["coef"]):
-        print(student,students[student])
 
 
 # Saving data when closing app
@@ -94,7 +89,7 @@ class tkinterApp(tk.Tk):
         self.radio4.grid(row=0, column=3, padx=0, pady=0)
 
         rbs = [self.radio1, self.radio2, self.radio3, self.radio4]
-        pages = [Page1, Page2, Page3, Page4]
+        Pages = [Page1, Page2, Page3, Page4]
 
         # Container for holding pages
         self.container = tk.Frame(self)
@@ -104,7 +99,7 @@ class tkinterApp(tk.Tk):
 
         self.pages = {}
 
-        for Page in pages:
+        for Page in Pages:
             page = Page(parent=self.container)
             self.pages[Page] = page
             page.grid(row=0, column=0, sticky="nsew")
@@ -118,72 +113,77 @@ class tkinterApp(tk.Tk):
             rbs[currentPageNumber - 1].config(background='lightgrey')
             rbs[val - 1].config(background='lightblue')
             currentPageNumber = val
-            self.show_page(pages[currentPageNumber - 1])
+            self.show_page(Pages[currentPageNumber - 1])
 
         showCurrentPage(1)
 
 
 # Page class for showing students ranked
 class Page1(tk.Frame):
+    def loadPage1(self):
+        global students
+        students = loadResults(listOfResults, subjects, espb)
+        for row in self.listbox.get_children():
+            self.listbox.delete(row)
+        self.columns = (("", "Indeks") + tuple(
+            [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 1]] + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 2]])
+                        + ("Koeficijent",))
+        cw = [35, 85] + (len(self.columns) - 3) * [60, ] + [100, ]
+        self.listbox.configure(columns=self.columns)
+        for ind, column in enumerate(self.columns):
+            self.listbox.heading(column, anchor="e", text=column)
+            self.listbox.column(column, anchor="e", width=cw[ind])
+        self.listbox.column(column="Koeficijent", width=int(self.container.winfo_width() - sum(cw[:-1]) - 22))
+        data1 = []
+        if type(students) is tuple:
+            self.lblAlert.configure(text="Greska sa rezultatom " + students[1][students[1].rindex("/") + 1:]
+                                         + ". Ne mozemo da prikazemo listu dok svi rezultati nisu dobro uneti.")
+            return
+        for student in sorted(students, key=lambda x: -students[x]["coef"]):
+            data1.append((student,) + tuple([students[student].get(x.strip(), "") for x in self.columns[2:-1]])
+                         + (students[student]["coef"],))
+        ind = 1
+        for item in data1:
+            koef = "{:5.2f}".format(item[-1])
+            self.listbox.insert("", tk.END, values=(ind,) + item[:-1] + (koef,))
+            ind += 1
 
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.update()
         style = ttk.Style()
         style.configure('Custom.TEntry', foreground='blue', background='lightyellow', borderwidth=2)
-        container = tk.Frame(self, width=600, height=400)
-        container.place(x=0.02 * windowWidth, y=0.05 * windowHeight, w=windowWidth * 0.91, h=windowHeight * 0.8)
-        container.update_idletasks()
+        self.container = tk.Frame(self, width=600, height=400)
+        self.container.place(x=0.02 * windowWidth, y=0.05 * windowHeight, w=windowWidth * 0.91, h=windowHeight * 0.8)
+        self.container.update_idletasks()
 
-        columns = (("", "Indeks") + tuple(
-            [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 1]] + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 2]])
-                   + ("Koeficijent",))
-        cw = [35, 85] + (len(columns) - 3) * [60, ] + [100, ]
+        scrollbarx = ttk.Scrollbar(self.container, orient=tk.HORIZONTAL)
+        scrollbary = ttk.Scrollbar(self.container)
+        self.listbox = ttk.Treeview(self.container, xscrollcommand=scrollbarx.set,
+                                    yscrollcommand=scrollbary.set, show="headings")
 
-        scrollbarx = ttk.Scrollbar(container, orient=tk.HORIZONTAL)
-        scrollbary = ttk.Scrollbar(container)
-        listbox = ttk.Treeview(container, xscrollcommand=scrollbarx.set, yscrollcommand=scrollbary.set, columns=columns,
-                               show="headings")
-        scrollbarx.configure(command=listbox.xview)
-        scrollbary.configure(command=listbox.yview)
+        self.lblAlert = tk.Label(self, font=("Verdana", 12), text="")
+        self.lblAlert.place(x=0.1 * windowWidth, y=0.85 * windowHeight, w=1200)
+
+        scrollbarx.configure(command=self.listbox.xview)
+        scrollbary.configure(command=self.listbox.yview)
         scrlH = 20
-        listbox.place(h=container.winfo_height() - scrlH, w=container.winfo_width() - scrlH, x=0, y=0)
-        scrollbarx.place(h=scrlH, w=container.winfo_width() - scrlH, x=0, y=container.winfo_height() - scrlH)
-        scrollbary.place(h=container.winfo_height() - scrlH, w=scrlH, x=container.winfo_width() - scrlH, y=0)
-        for ind, column in enumerate(columns):
-            listbox.heading(column, anchor="e", text=column)
-            listbox.column(column, anchor="e", width=cw[ind])
-        listbox.heading("#0", text="")
+        self.listbox.place(h=self.container.winfo_height() - scrlH, w=self.container.winfo_width() - scrlH, x=0, y=0)
+        scrollbarx.place(h=scrlH, w=self.container.winfo_width() - scrlH, x=0, y=self.container.winfo_height() - scrlH)
+        scrollbary.place(h=self.container.winfo_height() - scrlH, w=scrlH, x=self.container.winfo_width() - scrlH, y=0)
+        self.listbox.heading("#0", text="")
 
         ListStyle = ttk.Style()
         ListStyle.configure("Treeview", font=ListFont)
         ListStyle.configure("Treeview.Heading", font=ListFont + ("bold",))
-
-        listbox.column(column="Koeficijent", width=int(container.winfo_width() - sum(cw[:-1]) - 22))
-        """
-        data1 = [("23/0999", 10, 10, 10, 10, 10, 10, "", 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, "", "", "", 11.00),
-                 ("23/0898", 9, 9, 9, 9, 9, 9, "", 9, 10, 10, 10, 10, 10, 10, 10, 10, "", 10, "", "", 10.45),
-                 ("23/9293", 9, 9, 9, 9, 9, "", 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, "", "", "", 9.90), ]
-        data1 *= 60
-        """
-        data1 = []
-        for student in sorted(students, key=lambda x: -students[x]["coef"]):
-            data1.append((student,) + tuple([students[student].get(x.strip(),"") for x in columns[2:-1]])
-                         + (students[student]["coef"],))
-
-        data2 = data1.copy()
-        ind = 1
-        for item in data2:
-            koef = "{:5.2f}".format(item[-1])
-            listbox.insert("", tk.END, values=(ind,) + item[:-1] + (koef,))
-            ind += 1
+        self.columns = tuple()
 
         def BtnClick():
             dataToCopy = []
-            headers = columns[1:]
-            dataToCopy.append("       " + "   ".join(headers))
-            for item in listbox.get_children():
-                row = listbox.item(item)["values"]
+            headers = self.columns[1:]
+            dataToCopy.append("      " + headers[0] + "        " + "   ".join(headers[1:-1]) + "  " + headers[-1])
+            for item in self.listbox.get_children():
+                row = self.listbox.item(item)["values"]
                 for i1 in range(2, len(row) - 1):
                     if row[i1] != "":
                         row[i1] = "{:4d}".format(int(row[i1]))
@@ -200,6 +200,7 @@ class Page1(tk.Frame):
             copyToClipboard(data_str)
             btn.config(text="Copied", image=self.okicon)
 
+        self.loadPage1()
         self.copyicon = tk.PhotoImage(file="images/copyicon.png")
         self.okicon = tk.PhotoImage(file="images/okicon.png")
         btn = tk.Button(self, text="Copy", image=self.copyicon, compound=tk.LEFT, background="darkgrey",
@@ -209,6 +210,41 @@ class Page1(tk.Frame):
 
 # Page class for seeing, changing and deleting saved results
 class Page2(tk.Frame):
+
+    def loadResultsToPage2(self):
+        self.listbox1.delete(0, tk.END)
+        self.listbox2.delete("1.0", tk.END)
+        global old_ind_page2
+        old_ind_page2 = -1
+        for r in listOfResults:
+            self.listbox1.insert(tk.END, r)
+
+    def changeToSelectedResult(self):
+        ind = self.listbox1.curselection()
+        global old_ind_page2
+        if ind and ind[0] != old_ind_page2:
+            old_ind_page2 = ind[0]
+            self.listbox2.delete("1.0", tk.END)
+            r = loadResult(self.listbox1.get(ind[0]))
+            for line in r:
+                self.listbox2.insert(tk.END, line + "\n")
+            app.pages[Page1].loadPage1()
+
+    def removeResult(self):
+        ind = self.listbox1.curselection()
+        if not ind:
+            messagebox.showerror("Greska", "Niste izabrali rok koji zelite da obrisete.")
+            return
+        shouldDelRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izbrisete izabrani rok?")
+
+        if shouldDelRes:
+            resFileName = self.listbox1.get(ind[0])
+            deleteFile(resFileName)
+            listOfResults.remove(resFileName)
+            self.loadResultsToPage2()
+            self.listbox2.delete("1.0", tk.END)
+            app.pages[Page1].loadPage1()
+
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         Font2 = ("Arial", 10)
@@ -223,12 +259,12 @@ class Page2(tk.Frame):
         style.configure("Custom.Listbox", font=Font2)
         scrollbarx1 = ttk.Scrollbar(container1, orient=tk.HORIZONTAL)
         scrollbary1 = ttk.Scrollbar(container1)
-        listbox1 = tk.Listbox(container1, xscrollcommand=scrollbarx1.set,
-                              yscrollcommand=scrollbary1.set, activestyle="none")
-        scrollbarx1.configure(command=listbox1.xview)
-        scrollbary1.configure(command=listbox1.yview)
+        self.listbox1 = tk.Listbox(container1, xscrollcommand=scrollbarx1.set,
+                                   yscrollcommand=scrollbary1.set, activestyle="none")
+        scrollbarx1.configure(command=self.listbox1.xview)
+        scrollbary1.configure(command=self.listbox1.yview)
         scrlH = 20
-        listbox1.place(h=container1.winfo_height() - scrlH, w=container1.winfo_width() - scrlH, x=0, y=0)
+        self.listbox1.place(h=container1.winfo_height() - scrlH, w=container1.winfo_width() - scrlH, x=0, y=0)
         scrollbarx1.place(h=scrlH, w=container1.winfo_width() - scrlH, x=0, y=container1.winfo_height() - scrlH)
         scrollbary1.place(h=container1.winfo_height() - scrlH, w=scrlH, x=container1.winfo_width() - scrlH, y=0)
 
@@ -236,17 +272,7 @@ class Page2(tk.Frame):
         global old_ind_page2
         old_ind_page2 = -1
 
-        def changeSelectedResult(event):
-            ind = listbox1.curselection()
-            global old_ind_page2
-            if ind and ind[0] != old_ind_page2:
-                old_ind_page2 = ind[0]
-                listbox2.delete("1.0", tk.END)
-                r = loadResult(listbox1.get(ind[0]))
-                for line in r:
-                    listbox2.insert(tk.END, line + "\n")
-
-        listbox1.bind("<<ListboxSelect>>", changeSelectedResult)
+        self.listbox1.bind("<<ListboxSelect>>", lambda event: self.changeToSelectedResult())
 
         # listbox2 is for showing selected result
         container2 = tk.Frame(self, width=0.4 * windowWidth, height=0.7 * windowHeight)
@@ -255,39 +281,18 @@ class Page2(tk.Frame):
 
         scrollbarx2 = ttk.Scrollbar(container2, orient=tk.HORIZONTAL)
         scrollbary2 = ttk.Scrollbar(container2)
-        listbox2 = tk.Text(container2, xscrollcommand=scrollbarx2.set, wrap="none",
-                           yscrollcommand=scrollbary2.set, undo=True)
-        scrollbarx2.configure(command=listbox2.xview)
-        scrollbary2.configure(command=listbox2.yview)
+        self.listbox2 = tk.Text(container2, xscrollcommand=scrollbarx2.set, wrap="none",
+                                yscrollcommand=scrollbary2.set, undo=True)
+        scrollbarx2.configure(command=self.listbox2.xview)
+        scrollbary2.configure(command=self.listbox2.yview)
         scrlH = 20
-        listbox2.place(h=container2.winfo_height() - scrlH, w=container2.winfo_width() - scrlH, x=0, y=0)
+        self.listbox2.place(h=container2.winfo_height() - scrlH, w=container2.winfo_width() - scrlH, x=0, y=0)
         scrollbarx2.place(h=scrlH, w=container2.winfo_width() - scrlH, x=0, y=container2.winfo_height() - scrlH)
         scrollbary2.place(h=container2.winfo_height() - scrlH, w=scrlH, x=container2.winfo_width() - scrlH, y=0)
 
-        def loadResultsToPage2():
-            listbox1.delete(0, tk.END)
-            global old_ind_page2
-            old_ind_page2 = -1
-            for r in listOfResults:
-                listbox1.insert(tk.END, r)
+        self.loadResultsToPage2()
 
-        loadResultsToPage2()
-
-        def removeResult():
-            ind = listbox1.curselection()
-            if not ind:
-                messagebox.showerror("Greska", "Niste izabrali rok koji zelite da obrisete.")
-                return
-            shouldDelRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izbrisete izabrani rok?")
-
-            if shouldDelRes:
-                resFileName = listbox1.get(ind[0])
-                deleteFile(resFileName)
-                listOfResults.remove(resFileName)
-                loadResultsToPage2()
-                listbox2.delete("1.0", tk.END)
-
-        btnRemoveResult = tk.Button(self, text="Ukloni rok", font=SettingsFont, command=removeResult)
+        btnRemoveResult = tk.Button(self, text="Ukloni rok", font=SettingsFont, command=lambda: self.removeResult())
         btnRemoveResult.place(x=0.85 * windowWidth, y=0.8 * windowHeight)
 
         def alterResult():
@@ -295,18 +300,17 @@ class Page2(tk.Frame):
             if ind == -1:
                 messagebox.showerror("Greska", "Niste izabrali rok koji zelite da izmenite.")
                 return
-            res = listbox2.get("1.0", tk.END)
-            resFileName = listbox1.get(ind)
+            res = self.listbox2.get("1.0", tk.END)
+            resFileName = self.listbox1.get(ind)
             if len(res) < 1:
                 messagebox.showerror("Greska", "Ne mozete da izmenite rok na ovaj nacin.")
                 return
-            shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izmenite " + resFileName[
-                                                                                                 resFileName.rindex(
-                                                                                                     "/") + 1:] + " ?")
-
+            shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izmenite "
+                                               + resFileName[resFileName.rindex("/") + 1:] + " ?")
             if shouldAltRes:
                 saveResult(resFileName, res)
                 messagebox.showinfo("Obavesetenje", "Izabrani fajl je izmenjen.")
+                app.pages[Page1].loadPage1()
 
         btnAlterResult = tk.Button(self, text="Izmeni rok", font=SettingsFont, command=alterResult)
         btnAlterResult.place(x=0.72 * windowWidth, y=0.8 * windowHeight)
@@ -411,18 +415,8 @@ class Page3(tk.Frame):
             fileName += str(num) + ".txt"
             if saveResult(fileName, listboxText) == 1:
                 listOfResults.append(fileName)
-                # loadResultsToPage2() doesn't change page2 when adding new results, instead you need to close and
-                # open app to see new results
-                #
-                #
-                #
-                #
-                #
-                #
-                #
-                #
-                #
-                #
+                app.pages[Page1].loadPage1()
+                app.pages[Page2].loadResultsToPage2()
 
             else:
                 messagebox.showerror("Obavestenje", "Niste uneli vazeci rok.")

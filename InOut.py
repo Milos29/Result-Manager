@@ -11,32 +11,39 @@ def loadListOfResults():
     return lst
 
 
-# Returns yearAdm(year of admission),year(which year of studies)
+# Returns yearAdm(year of admission),year(which year of studies), number of espb for current results saved
 def loadSettings():
     with open("files/settings.txt", "r") as f:
-        s = f.readlines()
+        s = [x.strip() for x in f.readlines()]
         if len(s) < 3:
-            print("AAAAAAAAAA")
             return date.today().year, 1, 60
-        badInput = False
+        badInput0 = False
+        badInput1 = False
+        badInput2 = False
         if len(s[0]) == 0 or len(s[1]) == 0 or len(s[2]) == 0:
             return date.today().year, 1, 60
         for c in s[0]:
             if not c.isdigit():
-                badInput = True
+                badInput0 = True
                 break
         for c in s[1]:
             if not c.isdigit():
-                badInput = True
+                badInput1 = True
                 break
         for c in s[2]:
             if not c.isdigit():
-                badInput = True
+                badInput2 = True
                 break
-        if badInput:
-            return date.today().year, 1, 60
-        else:
-            return int(s[0]), int(s[1]), int(s[2])
+        a = date.today().year
+        b = 1
+        c = 60
+        if not badInput0:
+            a = int(s[0])
+        if not badInput1:
+            b = int(s[1])
+        if not badInput2:
+            c = int(s[2])
+        return a, b, c
 
 
 # Returns dictionary of all subjects and their data
@@ -103,14 +110,13 @@ def saveResult(fileName, lst):
     return 1
 
 
-def loadResults(listOfResults, subjects):
+def loadResults(listOfResults, subjects, espb):
     students = dict()
     term = {"jan": 1, "feb": 2, "jun": 3, "jul": 4, "avg": 5, "sep": 6}
     listOfResults.sort(key=lambda x: -term[x[-9:-6]])
-    print("List of Results: ", listOfResults)
     for fileName in listOfResults:
         result = loadResult(fileName)
-        subNick = fileName[fileName.rindex('/')+1:fileName.index('-')]
+        subNick = fileName[fileName.rindex('/') + 1:fileName.index('-')]
         coef = 1
         subSemInAYear = (subjects[subNick]["semester"] + 1) % 2 + 1
         if term[fileName[-9:-6]] == subSemInAYear * 2 or term[fileName[-9:-6]] == subSemInAYear * 2 - 1:
@@ -118,7 +124,12 @@ def loadResults(listOfResults, subjects):
         for line in result:
             line = line.split(" ")
             ind = line[0]
-            grade = int(line[-1])
+            if len(ind) != 9 or ind[0]!="2" or ind[4]!="/":
+                return -1, fileName
+            try:
+                grade = int(line[-1])
+            except ValueError:
+                return -1, fileName
             if ind not in students and grade > 4:
                 students[ind] = dict()
                 students[ind]["coef"] = 0.0
@@ -127,6 +138,8 @@ def loadResults(listOfResults, subjects):
                 students[ind][subNick] = grade
                 students[ind]["gpa"] += grade
                 students[ind]["coef"] += coef * grade * subjects[subNick]["espb"]
+    for ind in students:
+        students[ind]["coef"] /= espb
     return students
 
 
