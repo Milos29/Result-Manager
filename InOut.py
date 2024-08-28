@@ -86,17 +86,17 @@ def saveSettings(yearAdm, year, espb):
 # Saves result to a given file
 def saveResult(fileName, lst):
     text = []
-    endInd = 0
     for line in lst.split("\n"):
-        endInd = len(line) - 1
-        while endInd > 0 and not (line[endInd].isdigit()):
-            endInd -= 1
-        line = line[:endInd + 1]
+        line = line.strip()
+        # endInd = len(line) - 1
+        # while endInd > 0 and not (line[endInd].isdigit()):
+        #     endInd -= 1
+        # line = line[:endInd + 1]
         if "соба" in line:
             line = line[:line.index("соба") - 1]
         if "ЕТФ" in line:
             line = line[:line.index("ЕТФ") - 1]
-        if ":" not in line and '/0' in line and line[-1].isdigit():
+        if ":" not in line and '/0' in line:
             if line[4] == '/':
                 text.append(line)
             else:

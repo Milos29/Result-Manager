@@ -22,7 +22,6 @@ def read_pdf(file_path):
             return ["Ovo nije fajl sa rezultatima.", ]
         for page in pdf_reader.pages:
             s = page.extract_text().split("\n")
-            endInd = 0
             for line in s:
                 endInd = len(line) - 1
                 while endInd > 0 and not (line[endInd].isdigit()):

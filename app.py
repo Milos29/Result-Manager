@@ -143,6 +143,8 @@ class Page1(tk.Frame):
             self.lblAlert.configure(text="Greska sa rezultatom " + students[1][students[1].rindex("/") + 1:]
                                          + ". Ne mozemo da prikazemo listu dok svi rezultati nisu dobro uneti.")
             return
+        else:
+            self.lblAlert.configure(text="")
         for student in sorted(students, key=lambda x: -students[x]["coef"]):
             data1.append((student,) + tuple([students[student].get(x.strip(), "") for x in self.columns[2:-1]])
                          + (students[student]["coef"],))
