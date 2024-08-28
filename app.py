@@ -23,7 +23,9 @@ filePath = ""
 listOfResults = list()
 yearAdm = 0
 year = 0
+espb = 1
 subjects = dict()
+students = dict()
 
 
 # Sets global window size variables
@@ -35,16 +37,21 @@ def setWindowSize(wt, ht):
 
 # Loading data when loading app
 def on_app_loading():
-    global yearAdm, year, listOfResults, subjects
-    yearAdm, year = loadSettings()
+    global yearAdm, year, listOfResults, subjects, students, espb
+    yearAdm, year, espb = loadSettings()
     listOfResults = loadListOfResults()
     subjects = loadSubjects()
+    students = loadResults(listOfResults, subjects)
+
+    print("Students")
+    for student in sorted(students,key=lambda x: -students[x]["coef"]):
+        print(student,students[student])
 
 
 # Saving data when closing app
 def on_app_closing(self):
     self.destroy()
-    saveSettings(yearAdm, year)
+    saveSettings(yearAdm, year, espb)
     saveListOfResults(listOfResults)
 
 
@@ -128,10 +135,10 @@ class Page1(tk.Frame):
         container.place(x=0.02 * windowWidth, y=0.05 * windowHeight, w=windowWidth * 0.91, h=windowHeight * 0.8)
         container.update_idletasks()
 
-        columns = ("", "Indeks") + tuple(
-            [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 1]] + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 2]]) + (
-                      "Koeficijent",)
-        cw = [35, 80] + (len(columns) - 3) * [60, ] + [100, ]
+        columns = (("", "Indeks") + tuple(
+            [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 1]] + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 2]])
+                   + ("Koeficijent",))
+        cw = [35, 85] + (len(columns) - 3) * [60, ] + [100, ]
 
         scrollbarx = ttk.Scrollbar(container, orient=tk.HORIZONTAL)
         scrollbary = ttk.Scrollbar(container)
@@ -153,11 +160,16 @@ class Page1(tk.Frame):
         ListStyle.configure("Treeview.Heading", font=ListFont + ("bold",))
 
         listbox.column(column="Koeficijent", width=int(container.winfo_width() - sum(cw[:-1]) - 22))
-
+        """
         data1 = [("23/0999", 10, 10, 10, 10, 10, 10, "", 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, "", "", "", 11.00),
                  ("23/0898", 9, 9, 9, 9, 9, 9, "", 9, 10, 10, 10, 10, 10, 10, 10, 10, "", 10, "", "", 10.45),
                  ("23/9293", 9, 9, 9, 9, 9, "", 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, "", "", "", 9.90), ]
         data1 *= 60
+        """
+        data1 = []
+        for student in sorted(students, key=lambda x: -students[x]["coef"]):
+            data1.append((student,) + tuple([students[student].get(x.strip(),"") for x in columns[2:-1]])
+                         + (students[student]["coef"],))
 
         data2 = data1.copy()
         ind = 1
@@ -230,7 +242,7 @@ class Page2(tk.Frame):
             if ind and ind[0] != old_ind_page2:
                 old_ind_page2 = ind[0]
                 listbox2.delete("1.0", tk.END)
-                r = getResult(listbox1.get(ind[0]))
+                r = loadResult(listbox1.get(ind[0]))
                 for line in r:
                     listbox2.insert(tk.END, line + "\n")
 
@@ -286,7 +298,7 @@ class Page2(tk.Frame):
             res = listbox2.get("1.0", tk.END)
             resFileName = listbox1.get(ind)
             if len(res) < 1:
-                messagebox.showerror("Greska", "Ne mozete da izmenite rok na ovaj naccin.")
+                messagebox.showerror("Greska", "Ne mozete da izmenite rok na ovaj nacin.")
                 return
             shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izmenite " + resFileName[
                                                                                                  resFileName.rindex(
@@ -326,7 +338,10 @@ class Page3(tk.Frame):
 
         def chooseFile():
             global filePath
-            filePath = filedialog.askopenfilename(title="Izaberite fajl", filetypes=(("PDF files", "*.pdf"),))
+            fp = filedialog.askopenfilename(title="Izaberite fajl", filetypes=(("PDF files", "*.pdf"),))
+            if fp == "":
+                return
+            filePath = fp
             listbox.delete("1.0", tk.END)
             nonlocal content
             content = read_pdf(filePath)
@@ -396,8 +411,8 @@ class Page3(tk.Frame):
             fileName += str(num) + ".txt"
             if saveResult(fileName, listboxText) == 1:
                 listOfResults.append(fileName)
-                # loadResultsToPage2()
-                # doesn't change page2 when adding new results, instead you need to close and open app to see new results
+                # loadResultsToPage2() doesn't change page2 when adding new results, instead you need to close and
+                # open app to see new results
                 #
                 #
                 #
@@ -421,25 +436,32 @@ class Page4(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
-        lblYearAdm = tk.Label(self, text="Godina upisa", font=SettingsFont)
-        lblYearAdm.place(x=10, y=10)
+        self.lblYearAdm = tk.Label(self, text="Godina upisa", font=SettingsFont)
+        self.lblYearAdm.place(x=10, y=10)
 
-        txtYearAdm = tk.Entry(self, font=SettingsFont)
-        txtYearAdm.place(x=200, y=10, width=120, height=30)
+        self.txtYearAdm = tk.Entry(self, font=SettingsFont)
+        self.txtYearAdm.place(x=200, y=10, width=120, height=30)
 
-        lblYear = tk.Label(self, text="Godina", font=SettingsFont)
-        lblYear.place(x=30, y=60)
+        self.lblYear = tk.Label(self, text="Godina", font=SettingsFont)
+        self.lblYear.place(x=30, y=60)
 
-        cmbYear = ttk.Combobox(self, font=SettingsFontSmaller)
-        cmbYear.place(x=200, y=60, width=120, height=30)
+        self.cmbYear = ttk.Combobox(self, font=SettingsFontSmaller)
+        self.cmbYear.place(x=200, y=60, width=120, height=30)
         years = ["1. godina", "2.godina", "3. godina", "4. godina"]
-        cmbYear["values"] = years
-        cmbYear.state(["readonly"])
-        cmbYear.current(0)
+        self.cmbYear["values"] = years
+        self.cmbYear.state(["readonly"])
+        self.cmbYear.current(0)
+
+        self.lblEspb = tk.Label(self, text="Espb", font=SettingsFont)
+        self.lblEspb.place(x=20, y=110)
+
+        self.txtEspb = tk.Entry(self, font=SettingsFont)
+        self.txtEspb.place(x=200, y=110, width=120, height=30)
 
         def BtnSave():
-            global year, yearAdm
-            yA = txtYearAdm.get()
+            global year, yearAdm, espb
+            yA = self.txtYearAdm.get()
+            es = self.txtEspb.get()
             badInput = False
             if len(yA) != 4 or yA[0] != '2':
                 badInput = True
@@ -447,18 +469,27 @@ class Page4(tk.Frame):
                 if not c.isdigit():
                     badInput = True
                     break
+            for c in es:
+                if not c.isdigit():
+                    badInput = True
+                    break
             if badInput:
                 messagebox.showerror("Obavestenje", "Neki podatak nije dobro unet.")
                 return
+            if int(es) == 0:
+                messagebox.showerror("Obavestenje", "Espb ne moze biti 0.")
+                return
             yearAdm = int(yA)
-            year = cmbYear.current() + 1
+            year = self.cmbYear.current() + 1
+            espb = int(es)
 
         btnSave = tk.Button(self, text="Sacuvaj", font=SettingsFont, command=BtnSave)
         btnSave.place(x=700, y=550)
 
         def on_settings_loaded():
-            txtYearAdm.insert(tk.END, str(yearAdm))
-            cmbYear.current(year - 1)
+            self.txtYearAdm.insert(tk.END, str(yearAdm))
+            self.cmbYear.current(year - 1)
+            self.txtEspb.insert(tk.END, str(espb))
 
         on_settings_loaded()
 

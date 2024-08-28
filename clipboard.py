@@ -43,6 +43,7 @@ GMEM_ZEROINIT = 0x0040
 
 unicode_type = type(u'')
 
+
 # Copies given text to clipboard
 def copyToClipboard(data_str):
     # if not isinstance(data_str, unicode_type):
