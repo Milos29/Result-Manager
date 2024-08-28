@@ -58,6 +58,8 @@ class tkinterApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
+        # Hides window until it fully loads
+        self.withdraw()
         wp = 0.839  # percentage of width of the screen
         hp = 0.7  # percentage of height of the screen
         fw = self.winfo_screenwidth()
@@ -116,6 +118,8 @@ class tkinterApp(tk.Tk):
             self.show_page(Pages[currentPageNumber - 1])
 
         showCurrentPage(1)
+        # Shows window after 20 ms so that user can't see other widgets
+        self.after(20, func=lambda: self.deiconify())
 
 
 # Page class for showing students ranked
@@ -427,6 +431,36 @@ class Page3(tk.Frame):
 
 # Settings page class
 class Page4(tk.Frame):
+    def BtnSave(self):
+        global year, yearAdm, espb
+        yA = self.txtYearAdm.get()
+        es = self.txtEspb.get()
+        badInput = False
+        if len(yA) != 4 or yA[0] != '2':
+            badInput = True
+        for c in yA:
+            if not c.isdigit():
+                badInput = True
+                break
+        for c in es:
+            if not c.isdigit():
+                badInput = True
+                break
+        if badInput:
+            messagebox.showerror("Obavestenje", "Neki podatak nije dobro unet.")
+            return
+        if int(es) == 0:
+            messagebox.showerror("Obavestenje", "Espb ne moze biti 0.")
+            return
+        yearAdm = int(yA)
+        year = self.cmbYear.current() + 1
+        espb = int(es)
+
+    def on_settings_loaded(self):
+        self.txtYearAdm.insert(tk.END, str(yearAdm))
+        self.cmbYear.current(year - 1)
+        self.txtEspb.insert(tk.END, str(espb))
+
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
@@ -452,40 +486,10 @@ class Page4(tk.Frame):
         self.txtEspb = tk.Entry(self, font=SettingsFont)
         self.txtEspb.place(x=200, y=110, width=120, height=30)
 
-        def BtnSave():
-            global year, yearAdm, espb
-            yA = self.txtYearAdm.get()
-            es = self.txtEspb.get()
-            badInput = False
-            if len(yA) != 4 or yA[0] != '2':
-                badInput = True
-            for c in yA:
-                if not c.isdigit():
-                    badInput = True
-                    break
-            for c in es:
-                if not c.isdigit():
-                    badInput = True
-                    break
-            if badInput:
-                messagebox.showerror("Obavestenje", "Neki podatak nije dobro unet.")
-                return
-            if int(es) == 0:
-                messagebox.showerror("Obavestenje", "Espb ne moze biti 0.")
-                return
-            yearAdm = int(yA)
-            year = self.cmbYear.current() + 1
-            espb = int(es)
-
-        btnSave = tk.Button(self, text="Sacuvaj", font=SettingsFont, command=BtnSave)
+        btnSave = tk.Button(self, text="Sacuvaj", font=SettingsFont, command=lambda: self.BtnSave())
         btnSave.place(x=700, y=550)
 
-        def on_settings_loaded():
-            self.txtYearAdm.insert(tk.END, str(yearAdm))
-            self.cmbYear.current(year - 1)
-            self.txtEspb.insert(tk.END, str(espb))
-
-        on_settings_loaded()
+        self.on_settings_loaded()
 
 
 app = tkinterApp()
