@@ -128,6 +128,7 @@ def loadResults(listOfResults1, subjects, espb):
             fileName = "files/results/" + str(i) + ". godina.txt"
             result = loadResult(fileName)
             for line in result:
+                line = line.replace("\t", " ").strip()
                 line = line.split(" ")
                 ind = line[0]
                 if len(ind) != 9 or ind[0] != "2" or ind[4] != "/":
@@ -153,9 +154,11 @@ def loadResults(listOfResults1, subjects, espb):
         if term[fileName[-9:-6]] == subSemInAYear * 2 or term[fileName[-9:-6]] == subSemInAYear * 2 - 1:
             coef = 1.1
         for line in result:
+            line = line.replace("\t", " ").strip()
             line = line.split(" ")
             ind = line[0]
             if len(ind) != 9 or ind[0] != "2" or ind[4] != "/":
+                print(line)
                 return -1, fileName
             try:
                 grade = int(line[-1])
