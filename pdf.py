@@ -31,12 +31,11 @@ def read_pdf(file_path):
                     line = line[:line.index("соба") - 1]
                 if "ЕТФ" in line:
                     line = line[:line.index("ЕТФ") - 1]
-                if ":" not in line and '2023/0' in line and line[-1].isdigit():
+                if ":" not in line and '/0' in line and line[-1].isdigit():
                     if line[4] == '/':
                         text.append(line)
                     else:
                         text.append(line[line.index("/") - 4:])
-    text.sort()
     if len(text) == 0:
         return ["Ovo nije fajl sa rezultatima.", ]
     return text

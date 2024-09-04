@@ -101,7 +101,6 @@ def saveResult(fileName, lst):
                 text.append(line)
             else:
                 text.append(line[line.index("/") - 4:])
-    text.sort()
     if len(text) == 0:
         return -1
     with open(fileName, "w", encoding="utf-8") as f:
@@ -110,13 +109,45 @@ def saveResult(fileName, lst):
     return 1
 
 
-def loadResults(listOfResults, subjects, espb):
+def loadResults(listOfResults1, subjects, espb):
     students = dict()
+    listOfResults = listOfResults1.copy()
+    l1 = [-1, ] * 5
+    pom1 = 0
+    for i in range(1, 5):
+        try:
+            ind = listOfResults.index("files/results/" + str(i) + ". godina.txt")
+            listOfResults.pop(ind)
+            l1[i] = ind
+            pom1 = i
+        except ValueError:
+            continue
+
+    for i in range(4, 0, -1):
+        if l1[i] != -1:
+            fileName = "files/results/" + str(i) + ". godina.txt"
+            result = loadResult(fileName)
+            for line in result:
+                line = line.split(" ")
+                ind = line[0]
+                if len(ind) != 9 or ind[0] != "2" or ind[4] != "/":
+                    return -1, fileName
+                try:
+                    coef = float(line[-1])
+                except ValueError:
+                    return -1, fileName
+                if ind not in students:
+                    students[ind] = dict()
+                    students[ind]["coef"] = 0.0
+                students[ind]["coef"] += i * 60 * coef
+            break
+
     term = {"jan": 1, "feb": 2, "jun": 3, "jul": 4, "avg": 5, "sep": 6}
     listOfResults.sort(key=lambda x: -term[x[-9:-6]])
     for fileName in listOfResults:
-        result = loadResult(fileName)
         subNick = fileName[fileName.rindex('/') + 1:fileName.index('-')]
+        yr = (subjects[subNick]["semester"] + 1) // 2
+        result = loadResult(fileName)
         coef = 1
         subSemInAYear = (subjects[subNick]["semester"] + 1) % 2 + 1
         if term[fileName[-9:-6]] == subSemInAYear * 2 or term[fileName[-9:-6]] == subSemInAYear * 2 - 1:
@@ -124,7 +155,7 @@ def loadResults(listOfResults, subjects, espb):
         for line in result:
             line = line.split(" ")
             ind = line[0]
-            if len(ind) != 9 or ind[0]!="2" or ind[4]!="/":
+            if len(ind) != 9 or ind[0] != "2" or ind[4] != "/":
                 return -1, fileName
             try:
                 grade = int(line[-1])
@@ -133,11 +164,10 @@ def loadResults(listOfResults, subjects, espb):
             if ind not in students and grade > 4:
                 students[ind] = dict()
                 students[ind]["coef"] = 0.0
-                students[ind]["gpa"] = 0.0
             if grade > 4 and subNick not in students[ind]:
                 students[ind][subNick] = grade
-                students[ind]["gpa"] += grade
-                students[ind]["coef"] += coef * grade * subjects[subNick]["espb"]
+                if yr > pom1:
+                    students[ind]["coef"] += coef * grade * subjects[subNick]["espb"]
     for ind in students:
         students[ind]["coef"] /= espb
     return students

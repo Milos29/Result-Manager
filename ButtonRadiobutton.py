@@ -3,13 +3,13 @@ import tkinter as tk
 
 # Button class used for changing pages
 class ButtonRadiobutton(tk.Button):
+    def selectBtn(self):
+        self.config(background="lightblue")
+
+    def unselectBtn(self):
+        self.config(background="lightgrey")
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.config(
-            font=('Verdana', 10),
-            # activebackground='lightgrey',
-            background='lightgrey',
-            foreground='black',
-            borderwidth=0,
-            width=36
-        )
+        self.config(background='lightgrey', borderwidth=0, font=('Segoe UI', 10),
+                    foreground='black', relief='flat', width=40)
