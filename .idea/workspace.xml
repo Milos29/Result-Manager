@@ -6,8 +6,42 @@
   <component name="ChangeListManager">
     <list default="true" id="5aae1348-12b7-499e-9c67-ffd7ecfb0488" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/InOut.py" beforeDir="false" afterPath="$PROJECT_DIR$/InOut.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/files/listOfResults.txt" beforeDir="false" afterPath="$PROJECT_DIR$/files/listOfResults.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ButtonRadiobutton.py" beforeDir="false" afterPath="$PROJECT_DIR$/ButtonRadiobutton.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_cmap.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_codecs/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_codecs/adobe_glyphs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_codecs/pdfdoc.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_codecs/std.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_codecs/symbol.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_codecs/zapfding.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_encryption.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_merger.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_page.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_protocols.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_reader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_security.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_version.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/_writer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/constants.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/errors.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/filters.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/generic/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/generic/_annotations.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/generic/_base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/generic/_data_structures.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/generic/_fit.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/generic/_outline.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/generic/_rectangle.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/generic/_utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/pagerange.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/papersizes.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/py.typed" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/types.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPDF2/xmp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pdf.py" beforeDir="false" afterPath="$PROJECT_DIR$/pdf.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,20 +72,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;Python.ButtonRadiobutton.executor&quot;: &quot;Run&quot;,
-    &quot;Python.InOut.executor&quot;: &quot;Run&quot;,
-    &quot;Python.app.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.grazie&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Python.ButtonRadiobutton.executor": "Run",
+    "Python.InOut.executor": "Run",
+    "Python.app.executor": "Run",
+    "Python.pdf.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.grazie"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\milos\OneDrive\Documents\GitHub\Result-Manager\python-tkextrafont-master" />
       <recent name="C:\Users\milos\OneDrive\Documents\GitHub\Result-Manager" />
     </key>
   </component>

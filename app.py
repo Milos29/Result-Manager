@@ -11,11 +11,18 @@ from tkinter import ttk, messagebox, filedialog
 
 import ctypes
 
+sys.path.insert(0, 'pyglet')
+import pyglet
+
+# Doesn't work without this
+pyglet.options['win32_gdi_font'] = True
+pyglet.font.add_directory('Sen/static')
+
 # Some fonts used for widgets
-FONT1 = ("Segoe UI", 35)
-SettingsFont = ('Segoe UI', 15)
-SettingsFontSmaller = ('Segoe UI', 10)
-ListFont = ('Arial', 10)
+FONT1 = ("Sen", 35)
+SettingsFont = ('Sen', 15)
+SettingsFontSmaller = ('Sen', 10)
+ListFont = ('Sen', 10)
 
 windowWidth = 0
 windowHeight = 0
@@ -38,7 +45,7 @@ def setWindowSize(wt, ht):
 
 
 # Loading data when loading app
-def on_app_loading():
+def onAppLoading():
     global yearAdm, year, listOfResults, subjects, students, espb
     yearAdm, year, espb = loadSettings()
     listOfResults = loadListOfResults()
@@ -46,15 +53,34 @@ def on_app_loading():
 
 
 # Saving data when closing app
-def on_app_closing(self):
+def onAppClosing(self):
     self.destroy()
     saveSettings(yearAdm, year, espb)
     saveListOfResults(listOfResults)
 
 
+def listboxPaste(event):
+    try:
+        clipboard_data = app.clipboard_get()
+        event.widget.insert(tk.INSERT, clipboard_data)
+        event.widget.edit_separator()
+    except tk.TclError:
+        pass
+
+
+def rowConfigure(self, n, l1):
+    for i in range(n):
+        self.rowconfigure(i, weight=l1[i])
+
+
+def columnConfigure(self, n, l1):
+    for i in range(n):
+        self.columnconfigure(i, weight=l1[i])
+
+
 # Main app class
 class tkinterApp(tk.Tk):
-    def show_page(self, Page):
+    def showPage(self, Page):
         page = self.pages[Page]
         page.tkraise()
 
@@ -62,6 +88,7 @@ class tkinterApp(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         # Hides window until it fully loads
         self.withdraw()
+
         wp = 0.839  # percentage of width of the screen
         hp = 0.7  # percentage of height of the screen
 
@@ -76,14 +103,11 @@ class tkinterApp(tk.Tk):
         self.minsize(1300, 600)
         self.iconbitmap("images/icon1.ico")
         self.title("Lista")
-        on_app_loading()
-        self.protocol("WM_DELETE_WINDOW", func=lambda: on_app_closing(self))
+        onAppLoading()
+        self.protocol("WM_DELETE_WINDOW", func=lambda: onAppClosing(self))
 
-        self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1000)
-
-        for i in range(4):
-            self.columnconfigure(i, weight=1)
+        rowConfigure(self, 2, [1, 1000])
+        columnConfigure(self, 4, [1, 1, 1, 1])
 
         self.radio1 = ButtonRadiobutton(self, text='Lista', command=lambda: showCurrentPage(1))
         self.radio1.grid(row=0, column=0, sticky="nsew")
@@ -94,7 +118,7 @@ class tkinterApp(tk.Tk):
         self.radio3 = ButtonRadiobutton(self, text='Dodaj rok', command=lambda: showCurrentPage(3))
         self.radio3.grid(row=0, column=2, sticky="nsew")
 
-        self.radio4 = ButtonRadiobutton(self, text='Podesavanja', command=lambda: showCurrentPage(4))
+        self.radio4 = ButtonRadiobutton(self, text='Podešavanja', command=lambda: showCurrentPage(4))
         self.radio4.grid(row=0, column=3, sticky="nsew")
 
         rbs = [self.radio1, self.radio2, self.radio3, self.radio4]
@@ -116,7 +140,7 @@ class tkinterApp(tk.Tk):
             rbs[currentPageNumber - 1].unselectBtn()
             rbs[val - 1].selectBtn()
             currentPageNumber = val
-            self.show_page(Pages[currentPageNumber - 1])
+            self.showPage(Pages[currentPageNumber - 1])
 
         showCurrentPage(1)
         # Shows window after 20 ms so that user can't see other widgets
@@ -159,36 +183,31 @@ class Page1(tk.Frame):
             self.listbox.insert("", tk.END, values=(ind,) + item[:-1] + (koef,))
             ind += 1
         self.listbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        self.btn.config(text="Copy", image=self.copyicon)
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent, background='black')
         self.update()
 
         style = ttk.Style()
         style.configure('Custom.TEntry', foreground='blue', background='lightyellow', borderwidth=2)
 
-        self.rowconfigure(0, weight=50)
-        self.rowconfigure(1, weight=1)
-
-        self.columnconfigure(0, weight=50)
-        self.columnconfigure(1, weight=1)
+        rowConfigure(self, 2, [50, 1])
+        columnConfigure(self, 2, [50, 1])
 
         self.container = tk.Frame(self)
         self.container.grid(row=0, column=0, sticky="nsew")
         self.container.update_idletasks()
 
-        self.container.rowconfigure(0, weight=1000)
-        self.container.rowconfigure(1, weight=1)
-
-        self.container.columnconfigure(0, weight=1000)
-        self.container.columnconfigure(1, weight=1)
+        rowConfigure(self.container, 2, [1000, 1])
+        columnConfigure(self.container, 2, [1000, 1])
 
         self.scrollbarx = ttk.Scrollbar(self.container, orient=tk.HORIZONTAL)
         self.scrollbary = ttk.Scrollbar(self.container)
         self.listbox = ttk.Treeview(self.container, xscrollcommand=self.scrollbarx.set,
                                     yscrollcommand=self.scrollbary.set, show="headings")
 
-        self.lblAlert = tk.Label(self, font=("Segoe UI", 12), text="")
+        self.lblAlert = tk.Label(self, bg='black', fg='white', font=("Segoe UI", 12), text="")
         self.lblAlert.grid(row=1, column=0, pady=10, columnspan=2, sticky="new")
 
         self.scrollbarx.configure(command=self.listbox.xview)
@@ -226,16 +245,15 @@ class Page1(tk.Frame):
             copyToClipboard(data_str)
             self.btn.config(text="Copied", image=self.okicon)
 
-        self.loadPage1()
         self.copyicon = tk.PhotoImage(file="images/copyicon.png")
         self.okicon = tk.PhotoImage(file="images/okicon.png")
-        self.btn = tk.Button(self, text="Copy", image=self.copyicon, compound=tk.LEFT, background="darkgrey",
-                             command=BtnClick)
+        self.btn = tk.Button(self, text="Copy  ", image=self.copyicon, font=("Sen", 9), compound=tk.LEFT
+                             , width=50, bg="white", command=BtnClick)
         self.btn.grid(row=0, column=1, padx=10, pady=10, sticky="new")
+        self.loadPage1()
 
 
-# Page class for seeing, changing and de
-# leting saved results
+# Page class for seeing, changing and deleting saved results
 class Page2(tk.Frame):
 
     def loadResultsToPage2(self):
@@ -273,29 +291,21 @@ class Page2(tk.Frame):
             app.pages[Page1].loadPage1()
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent)
-        Font2 = ("Arial", 10)
+        tk.Frame.__init__(self, parent, background='black')
+        Font2 = ("Sen", 10)
 
-        self.rowconfigure(0, weight=200)
-        self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=1)
+        rowConfigure(self, 3, [200, 1, 1])
+        columnConfigure(self, 4, [3, 1, 1, 1])
 
-        self.columnconfigure(0, weight=3)
-        self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=1)
-        self.columnconfigure(3, weight=1)
-
-        pomlbl1 = tk.Label(self, text="")
+        pomlbl1 = tk.Label(self, text="", bg='black', fg='white')
         pomlbl1.grid(row=2, column=3)
 
         # listbox1 is for showing which results were saved
         container1 = tk.Frame(self)
         container1.grid(row=0, column=0, padx=20, pady=10, sticky="nsew")
 
-        container1.rowconfigure(0, weight=200)
-        container1.rowconfigure(1, weight=1)
-        container1.columnconfigure(0, weight=200)
-        container1.columnconfigure(1, weight=1)
+        rowConfigure(container1, 2, [200, 1])
+        columnConfigure(container1, 2, [200, 1])
 
         scrollbarx1 = ttk.Scrollbar(container1, orient=tk.HORIZONTAL)
         scrollbary1 = ttk.Scrollbar(container1)
@@ -318,15 +328,14 @@ class Page2(tk.Frame):
         container2 = tk.Frame(self)
         container2.grid(row=0, column=1, columnspan=3, padx=20, pady=10, sticky="nsew")
 
-        container2.rowconfigure(0, weight=200)
-        container2.rowconfigure(1, weight=1)
-        container2.columnconfigure(0, weight=200)
-        container2.columnconfigure(1, weight=1)
+        rowConfigure(container2, 2, [200, 1])
+        columnConfigure(container2, 2, [200, 1])
 
         scrollbarx2 = ttk.Scrollbar(container2, orient=tk.HORIZONTAL)
         scrollbary2 = ttk.Scrollbar(container2)
-        self.listbox2 = tk.Text(container2, width=10, xscrollcommand=scrollbarx2.set, font=("Arial", 10), wrap="none",
+        self.listbox2 = tk.Text(container2, width=10, xscrollcommand=scrollbarx2.set, font=("Sen", 10), wrap="none",
                                 yscrollcommand=scrollbary2.set, undo=True)
+
         scrollbarx2.configure(command=self.listbox2.xview)
         scrollbary2.configure(command=self.listbox2.yview)
 
@@ -334,6 +343,8 @@ class Page2(tk.Frame):
         scrollbarx2.grid(row=1, column=0, sticky="nsew")
         scrollbary2.grid(row=0, column=1, sticky="nsew")
         self.loadResultsToPage2()
+
+        self.listbox2.bind('<Control-v>', listboxPaste)
 
         style = ttk.Style()
         style.configure('TButton', font=SettingsFont, focuscolor='None', activebackground='white')
@@ -367,30 +378,17 @@ class Page2(tk.Frame):
 # Page class for adding results
 class Page3(tk.Frame):
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent, background='black')
 
-        self.rowconfigure(0, weight=20)
-        self.rowconfigure(1, weight=10)
-        self.rowconfigure(2, weight=10)
-        self.rowconfigure(3, weight=10)
-        self.rowconfigure(4, weight=300)
-        self.rowconfigure(5, weight=10)
+        rowConfigure(self, 6, [20, 10, 10, 10, 300, 10])
+        columnConfigure(self, 4, [30, 1, 8, 12])
 
-        self.columnconfigure(0, weight=30)
-        self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=8)
-        self.columnconfigure(3, weight=12)
-
-        Font2 = ("Arial", 10)
+        Font2 = ("Sen", 10)
         container = tk.Frame(self)
         container.grid(row=0, column=0, rowspan=5, padx=10, pady=10, sticky="nsew")
-        container.update_idletasks()
 
-        container.rowconfigure(0, weight=1000)
-        container.rowconfigure(1, weight=1)
-
-        container.columnconfigure(0, weight=1000)
-        container.columnconfigure(1, weight=1)
+        rowConfigure(container, 2, [1000, 1])
+        columnConfigure(container, 2, [1000, 1])
 
         style = ttk.Style()
         style.configure("Custom.Listbox", font=Font2)
@@ -405,6 +403,8 @@ class Page3(tk.Frame):
         scrollbarx.grid(row=1, column=0, sticky="nsew")
         scrollbary.grid(row=0, column=1, sticky="nsew")
         content = ""
+
+        listbox.bind('<Control-v>', listboxPaste)
 
         def chooseFile():
             global filePath
@@ -425,7 +425,7 @@ class Page3(tk.Frame):
         btnFileChoose = ttk.Button(self, text="Izaberite fajl", style="TButton", command=chooseFile)
         btnFileChoose.grid(row=5, column=0, padx=10, pady=10, sticky="n")
 
-        lblSemester = tk.Label(self, font=SettingsFontSmaller, text="Semestar")
+        lblSemester = tk.Label(self, font=SettingsFontSmaller, bg='black', fg='white', text="Semestar")
         lblSemester.grid(row=1, column=2, padx=10, pady=10, sticky="e")
 
         cmbSemester = ttk.Combobox(self, font=SettingsFontSmaller, width=12)
@@ -436,7 +436,7 @@ class Page3(tk.Frame):
         cmbSemester.state(["readonly"])
         cmbSemester.current(0)
 
-        lblSubject = tk.Label(self, font=SettingsFontSmaller, text="Predmet")
+        lblSubject = tk.Label(self, font=SettingsFontSmaller, bg='black', fg='white', text="Predmet")
         lblSubject.grid(row=2, column=2, padx=10, pady=10, sticky="e")
 
         cmbSubject = ttk.Combobox(self, font=SettingsFontSmaller, width=12)
@@ -444,7 +444,7 @@ class Page3(tk.Frame):
         cmbSubject["values"] = subjects[1]
         cmbSubject.state(["readonly"])
 
-        lblTerm = tk.Label(self, font=SettingsFontSmaller, text="Rok")
+        lblTerm = tk.Label(self, font=SettingsFontSmaller, bg='black', fg='white', text="Rok")
         lblTerm.grid(row=3, column=2, padx=10, pady=10, sticky="e")
 
         cmbTerm = ttk.Combobox(self, font=SettingsFontSmaller, width=12)
@@ -551,42 +551,38 @@ class Page4(tk.Frame):
         self.txtEspb.insert(tk.END, str(espb))
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent, background='black')
 
-        for i in range(16):
-            self.columnconfigure(i, weight=1)
-        for i in range(20):
-            self.rowconfigure(i, weight=1)
+        rowConfigure(self, 7, [1, 1, 1, 1, 4, 1, 5])
+        columnConfigure(self, 4, [3, 2, 3, 5])
 
-        c, r = 5, 2
-        self.lblYearAdm = tk.Label(self, text="Godina upisa", font=SettingsFont)
-        self.lblYearAdm.grid(row=r, column=c, padx=20, sticky="e")
+        self.lblYearAdm = tk.Label(self, text="Godina upisa", bg='black', fg='white', font=SettingsFont)
+        self.lblYearAdm.grid(row=1, column=1, padx=20, sticky="e")
 
         self.txtYearAdm = ttk.Entry(self, font=SettingsFont)
-        self.txtYearAdm.grid(row=r, column=c + 1, sticky="w")
+        self.txtYearAdm.grid(row=1, column=2, sticky="w")
 
-        self.lblYear = tk.Label(self, text="Godina", font=SettingsFont)
-        self.lblYear.grid(row=r + 1, column=c, padx=20, sticky="e")
+        self.lblYear = tk.Label(self, text="Godina", bg='black', fg='white', font=SettingsFont)
+        self.lblYear.grid(row=2, column=1, padx=20, sticky="e")
 
         self.cmbYear = ttk.Combobox(self, font=SettingsFont, width=18)
-        self.cmbYear.grid(row=r + 1, column=c + 1, sticky="w")
+        self.cmbYear.grid(row=2, column=2, sticky="w")
         years = ["1. godina", "2.godina", "3. godina", "4. godina"]
         self.cmbYear["values"] = years
         self.cmbYear.state(["readonly"])
         self.cmbYear.current(0)
 
-        self.lblEspb = tk.Label(self, text="Espb", font=SettingsFont)
-        self.lblEspb.grid(row=r + 2, column=c, padx=20, sticky="e")
+        self.lblEspb = tk.Label(self, text="Espb", bg='black', fg='white', font=SettingsFont)
+        self.lblEspb.grid(row=3, column=1, padx=20, sticky="e")
 
         self.txtEspb = ttk.Entry(self, font=SettingsFont)
-        self.txtEspb.grid(row=r + 2, column=c + 1, sticky="w")
+        self.txtEspb.grid(row=3, column=2, sticky="w")
 
         style = ttk.Style()
         style.configure('TButton', font=SettingsFont, focuscolor='None', activebackground='white')
-        style.map('TButton',
-                  background=[('focus', 'white')])
+        style.map('TButton')
         btnSave = ttk.Button(self, text="Sacuvaj", style="TButton", command=lambda: self.BtnSave())
-        btnSave.grid(row=10, column=c + 1, sticky="sw")
+        btnSave.grid(row=6, column=1, columnspan=2)
 
         self.on_settings_loaded()
 
