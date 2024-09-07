@@ -87,7 +87,7 @@ class tkinterApp(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         # Hides window until it fully loads
-        self.withdraw()
+        # self.withdraw()
 
         wp = 0.839  # percentage of width of the screen
         hp = 0.7  # percentage of height of the screen
@@ -102,7 +102,7 @@ class tkinterApp(tk.Tk):
         self.geometry("%dx%d+%d+%d" % (windowWidth, windowHeight, (fw - windowWidth) / 2, (fh - windowHeight) / 2))
         self.minsize(1300, 600)
         self.iconbitmap("images/icon1.ico")
-        self.title("Lista")
+        self.title("Result Manager")
         onAppLoading()
         self.protocol("WM_DELETE_WINDOW", func=lambda: onAppClosing(self))
 
@@ -144,112 +144,64 @@ class tkinterApp(tk.Tk):
 
         showCurrentPage(1)
         # Shows window after 20 ms so that user can't see other widgets
-        self.after(20, func=lambda: self.deiconify())
+        # self.after(1000, func=lambda: self.deiconify())
 
 
 # Page class for showing students ranked
 class Page1(tk.Frame):
     def loadPage1(self):
-        self.listbox.grid_remove()
+        self.textbox.grid_remove()
+        self.textbox.config(state=tk.NORMAL)
         global students
         students = loadResults(listOfResults, subjects, espb)
-        for row in self.listbox.get_children():
-            self.listbox.delete(row)
-        self.columns = (("", "Indeks") + tuple(
-            [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 1]] + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 2]])
-                        + ("Koef",))
-        cw = [35, 85] + [len(x.strip()) * 9 for x in self.columns[2:]]
-        self.listbox.configure(columns=self.columns)
-        for ind, column in enumerate(self.columns):
-            self.listbox.heading(column, anchor="w", text=column)
-            self.listbox.column(column, anchor="w", width=cw[ind])
+        self.textbox.delete("1.0", tk.END)
+        header = ([" Br", "Indeks", ] + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 1]]
+                  + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 2]] + ["Koef", ])
         data1 = []
         if type(students) is tuple:
-            self.lblAlert.configure(text="Greska sa rezultatom " + students[1][students[1].rindex("/") + 1:]
-                                         + ". Ne mozemo da prikazemo listu dok svi rezultati nisu dobro uneti.")
-            self.listbox.grid(row=0, column=0, sticky="nsew")
+            self.textbox.insert(tk.END, "Greška sa rezultatom " + students[1][students[1].rindex("/") + 1:]
+                                + ". Ne možemo da prikažemo listu dok svi rezultati nisu dobro uneti.\n")
+            self.textbox.grid(row=0, column=0, sticky="nsew")
+            self.textbox.config(state=tk.DISABLED)
             return
-        else:
-            self.lblAlert.configure(text="")
+
+        self.textbox.insert(tk.END, "\t".join(header) + "\n")
         yr = str(yearAdm)
+        br = 1
         for student in sorted(students, key=lambda x: -students[x]["coef"]):
             if yr in student:
-                data1.append((student,) +
-                             tuple([students[student].get(x.strip(), "") for x in self.columns[2:-1]])
-                             + (students[student]["coef"],))
-        ind = 1
+                data1.append(["{:3d}".format(br), student] +
+                             ["{:4}".format(students[student].get(x.strip(), "  ")) for x in header[2:-1]]
+                             + ["{:5.2f}".format(students[student]["coef"]), ])
+                br += 1
         for item in data1:
-            koef = "{:5.2f}".format(item[-1])
-            self.listbox.insert("", tk.END, values=(ind,) + item[:-1] + (koef,))
-            ind += 1
-        self.listbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-        self.btn.config(text="Copy", image=self.copyicon)
+            self.textbox.insert(tk.END, " \t".join(item) + "\n")
+        self.textbox.grid(row=0, column=0, sticky="nsew")
+        self.textbox.config(state=tk.DISABLED)
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent, background='black')
-        self.update()
-
-        style = ttk.Style()
-        style.configure('Custom.TEntry', foreground='blue', background='lightyellow', borderwidth=2)
+        tk.Frame.__init__(self, parent)
 
         rowConfigure(self, 2, [50, 1])
-        columnConfigure(self, 2, [50, 1])
+        columnConfigure(self, 2, [1, 0])
 
-        self.container = tk.Frame(self)
+        self.container = tk.Frame(self, background='#f0efed')
         self.container.grid(row=0, column=0, sticky="nsew")
-        self.container.update_idletasks()
 
         rowConfigure(self.container, 2, [1000, 1])
         columnConfigure(self.container, 2, [1000, 1])
 
         self.scrollbarx = ttk.Scrollbar(self.container, orient=tk.HORIZONTAL)
         self.scrollbary = ttk.Scrollbar(self.container)
-        self.listbox = ttk.Treeview(self.container, xscrollcommand=self.scrollbarx.set,
-                                    yscrollcommand=self.scrollbary.set, show="headings")
+        self.textbox = tk.Text(self.container, xscrollcommand=self.scrollbarx.set, wrap="none",
+                               font=ListFont, yscrollcommand=self.scrollbary.set)
 
-        self.lblAlert = tk.Label(self, bg='black', fg='white', font=("Segoe UI", 12), text="")
-        self.lblAlert.grid(row=1, column=0, pady=10, columnspan=2, sticky="new")
+        self.scrollbarx.configure(command=self.textbox.xview)
+        self.scrollbary.configure(command=self.textbox.yview)
 
-        self.scrollbarx.configure(command=self.listbox.xview)
-        self.scrollbary.configure(command=self.listbox.yview)
-
-        self.listbox.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         self.scrollbarx.grid(row=1, column=0, sticky="nsew")
         self.scrollbary.grid(row=0, column=1, sticky="nsew")
-        self.listbox.heading("#0", text="")
 
-        ListStyle = ttk.Style()
-        ListStyle.configure("Treeview", font=ListFont)
-        ListStyle.configure("Treeview.Heading", font=ListFont + ("bold",))
-        self.columns = tuple()
-
-        def BtnClick():
-            dataToCopy = []
-            headers = self.columns[1:]
-            dataToCopy.append("      " + headers[0] + "        " + "   ".join(headers[1:-1]) + "  " + headers[-1])
-            for item in self.listbox.get_children():
-                row = self.listbox.item(item)["values"]
-                for i1 in range(2, len(row) - 1):
-                    if row[i1] != "":
-                        row[i1] = "{:4d}".format(int(row[i1]))
-                    else:
-                        row[i1] = "    "
-                row[0] = "{:3d}".format(int(row[0]))
-                s = ""
-                for r in row[:-1]:
-                    r = str(r)
-                    s += r + "   "
-                s += "{:5.2f}".format(float(row[-1]))
-                dataToCopy.append(s)
-            data_str = "\n".join(dataToCopy)
-            copyToClipboard(data_str)
-            self.btn.config(text="Copied", image=self.okicon)
-
-        self.copyicon = tk.PhotoImage(file="images/copyicon.png")
-        self.okicon = tk.PhotoImage(file="images/okicon.png")
-        self.btn = tk.Button(self, text="Copy  ", image=self.copyicon, font=("Sen", 9), compound=tk.LEFT
-                             , width=50, bg="white", command=BtnClick)
-        self.btn.grid(row=0, column=1, padx=10, pady=10, sticky="new")
         self.loadPage1()
 
 
@@ -278,9 +230,9 @@ class Page2(tk.Frame):
     def removeResult(self):
         ind = self.listbox1.curselection()
         if not ind:
-            messagebox.showerror("Greska", "Niste izabrali rok koji zelite da obrisete.")
+            messagebox.showerror("Greška", "Niste izabrali rok koji želite da obrišete.")
             return
-        shouldDelRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izbrisete izabrani rok?")
+        shouldDelRes = messagebox.askyesno("Potvrdite radnju", "Da li želite da izbrišete izabrani rok?")
 
         if shouldDelRes:
             resFileName = self.listbox1.get(ind[0])
@@ -289,6 +241,7 @@ class Page2(tk.Frame):
             self.loadResultsToPage2()
             self.listbox2.delete("1.0", tk.END)
             app.pages[Page1].loadPage1()
+            messagebox.showinfo("Obaveštenje", "Izabrani fajl je obrisan.")
 
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, background='black')
@@ -357,18 +310,18 @@ class Page2(tk.Frame):
         def alterResult():
             ind = old_ind_page2
             if ind == -1:
-                messagebox.showerror("Greska", "Niste izabrali rok koji zelite da izmenite.")
+                messagebox.showerror("Greška", "Niste izabrali rok koji želite da izmenite.")
                 return
             res = self.listbox2.get("1.0", tk.END)
             resFileName = self.listbox1.get(ind)
             if len(res) == 0:
-                messagebox.showerror("Greska", "Ne mozete da izmenite rok na ovaj nacin.")
+                messagebox.showerror("Greška", "Ne možete da izmenite rok na ovaj način.")
                 return
-            shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li zelite da izmenite "
+            shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li želite da izmenite "
                                                + resFileName[resFileName.rindex("/") + 1:] + " ?")
             if shouldAltRes:
                 saveResult(resFileName, res)
-                messagebox.showinfo("Obavesetenje", "Izabrani fajl je izmenjen.")
+                messagebox.showinfo("Obaveštenje", "Izabrani fajl je izmenjen.")
                 app.pages[Page1].loadPage1()
 
         btnAlterResult = ttk.Button(self, text="Izmeni rok", style="TButton", command=alterResult)
@@ -465,10 +418,10 @@ class Page3(tk.Frame):
 
         def addResult():
             if cmbSubject.current() == -1:
-                messagebox.showerror("Obavestenje", "Niste izabrali predmet.")
+                messagebox.showerror("Obaveštenje", "Niste izabrali predmet.")
                 return
             if cmbSemester.current() == -1:
-                messagebox.showerror("Obavestenje", "Niste izabrali semestar.")
+                messagebox.showerror("Obaveštenje", "Niste izabrali semestar.")
                 return
             subject = cmbSubject.get()
             listboxText = listbox.get("1.0", tk.END)
@@ -476,7 +429,7 @@ class Page3(tk.Frame):
             if "godina" in subject:
                 fileName = "files/results/" + subject + ".txt"
                 if fileName in listOfResults:
-                    messagebox.showerror("Obavestenje", "Vec ste dodali listu za " + subject[0] + ". godinu.")
+                    messagebox.showerror("Obaveštenje", "Vec ste dodali listu za " + subject[0] + ". godinu.")
                     return
                 if saveResult(fileName, listboxText) == 1:
                     listbox.delete("1.0", tk.END)
@@ -484,16 +437,16 @@ class Page3(tk.Frame):
                     listOfResults.append(fileName)
                     app.pages[Page1].loadPage1()
                     app.pages[Page2].loadResultsToPage2()
-                    messagebox.showinfo("Obavestenje", "Rezultat roka je uspesno dodat.")
+                    messagebox.showinfo("Obaveštenje", "Rezultat roka je uspešno dodat.")
                 else:
-                    messagebox.showerror("Obavestenje",
+                    messagebox.showerror("Obaveštenje",
                                          "Ova lista nije u dobrom formatu. Format je( ... Indeks ... Ocena ...).")
                 return
             if cmbTerm.current() == -1:
-                messagebox.showerror("Obavestenje", "Niste izabrali rok.")
+                messagebox.showerror("Obaveštenje", "Niste izabrali rok.")
                 return
             if len(listboxText) < 11:
-                messagebox.showerror("Obavestenje", "Niste uneli vazeci rok.")
+                messagebox.showerror("Obaveštenje", "Niste uneli važeći rok.")
                 return
             term = cmbTerm.get()[:3]
             fileName = "files/results/" + subject + "-" + term + "-"
@@ -507,9 +460,9 @@ class Page3(tk.Frame):
                 listOfResults.append(fileName)
                 app.pages[Page1].loadPage1()
                 app.pages[Page2].loadResultsToPage2()
-                messagebox.showinfo("Obavestenje", "Rezultat roka je uspesno dodat.")
+                messagebox.showinfo("Obaveštenje", "Rezultat roka je uspešno dodat.")
             else:
-                messagebox.showerror("Obavestenje",
+                messagebox.showerror("Obaveštenje",
                                      "Ovi razultati nisu u dobrom formatu. Format je( ... Indeks ... Ocena ...).")
 
         btnAddResult = ttk.Button(self, text="Dodaj rok", style="TButton", command=addResult)
@@ -534,16 +487,16 @@ class Page4(tk.Frame):
                 badInput = True
                 break
         if badInput:
-            messagebox.showerror("Obavestenje", "Neki podatak nije dobro unet.")
+            messagebox.showerror("Obaveštenje", "Neki podatak nije dobro unet.")
             return
         if int(es) == 0:
-            messagebox.showerror("Obavestenje", "Espb ne moze biti 0.")
+            messagebox.showerror("Obaveštenje", "Espb ne može biti 0.")
             return
         yearAdm = int(yA)
         year = self.cmbYear.current() + 1
         espb = int(es)
         app.pages[Page1].loadPage1()
-        messagebox.showinfo("Obavestenje", "Sacuvali ste podesavanja.")
+        messagebox.showinfo("Obaveštenje", "Sačuvali ste podešavanja.")
 
     def on_settings_loaded(self):
         self.txtYearAdm.insert(tk.END, str(yearAdm))
@@ -581,7 +534,7 @@ class Page4(tk.Frame):
         style = ttk.Style()
         style.configure('TButton', font=SettingsFont, focuscolor='None', activebackground='white')
         style.map('TButton')
-        btnSave = ttk.Button(self, text="Sacuvaj", style="TButton", command=lambda: self.BtnSave())
+        btnSave = ttk.Button(self, text="Sačuvaj", style="TButton", command=lambda: self.BtnSave())
         btnSave.grid(row=6, column=1, columnspan=2)
 
         self.on_settings_loaded()
