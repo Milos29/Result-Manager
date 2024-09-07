@@ -2,12 +2,12 @@ from pdf import *
 
 from InOut import *
 
-from clipboard import copyToClipboard
+# from clipboard import copyToClipboard
 
 from ButtonRadiobutton import *
 
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
+from tkinter import ttk, messagebox, filedialog, font
 
 import ctypes
 
@@ -19,10 +19,8 @@ pyglet.options['win32_gdi_font'] = True
 pyglet.font.add_directory('Sen/static')
 
 # Some fonts used for widgets
-FONT1 = ("Sen", 35)
 SettingsFont = ('Sen', 15)
-SettingsFontSmaller = ('Sen', 10)
-ListFont = ('Sen', 10)
+NormalFont = ('Courier', 11)
 
 windowWidth = 0
 windowHeight = 0
@@ -87,18 +85,18 @@ class tkinterApp(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         # Hides window until it fully loads
-        # self.withdraw()
+        self.withdraw()
 
-        wp = 0.839  # percentage of width of the screen
-        hp = 0.7  # percentage of height of the screen
+        wp = 0.86  # percentage of width of the screen
+        hp = 0.72  # percentage of height of the screen
 
         # calculates size of screen without taskbar
         rect = ctypes.wintypes.RECT()
         ctypes.windll.user32.SystemParametersInfoA(48, 0, ctypes.byref(rect), 0)
         fw = rect.right - rect.left
         fh = rect.bottom - rect.top
-
         setWindowSize(int(fw * wp), int(fh * hp))
+
         self.geometry("%dx%d+%d+%d" % (windowWidth, windowHeight, (fw - windowWidth) / 2, (fh - windowHeight) / 2))
         self.minsize(1300, 600)
         self.iconbitmap("images/icon1.ico")
@@ -144,7 +142,7 @@ class tkinterApp(tk.Tk):
 
         showCurrentPage(1)
         # Shows window after 20 ms so that user can't see other widgets
-        # self.after(1000, func=lambda: self.deiconify())
+        self.after(20, func=lambda: self.deiconify())
 
 
 # Page class for showing students ranked
@@ -155,8 +153,8 @@ class Page1(tk.Frame):
         global students
         students = loadResults(listOfResults, subjects, espb)
         self.textbox.delete("1.0", tk.END)
-        header = ([" Br", "Indeks", ] + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 1]]
-                  + [f"{x:{4}}" for x in subjects[(year - 1) * 2 + 2]] + ["Koef", ])
+        header = ([" Br     Indeks", ] + [f"{x:>{4}}" for x in subjects[(year - 1) * 2 + 1]]
+                  + [f"{x:>{4}}" for x in subjects[(year - 1) * 2 + 2]] + ["Koeficijent", ])
         data1 = []
         if type(students) is tuple:
             self.textbox.insert(tk.END, "Greška sa rezultatom " + students[1][students[1].rindex("/") + 1:]
@@ -165,17 +163,17 @@ class Page1(tk.Frame):
             self.textbox.config(state=tk.DISABLED)
             return
 
-        self.textbox.insert(tk.END, "\t".join(header) + "\n")
+        self.textbox.insert(tk.END, "  ".join(header) + "\n")
         yr = str(yearAdm)
         br = 1
         for student in sorted(students, key=lambda x: -students[x]["coef"]):
             if yr in student:
-                data1.append(["{:3d}".format(br), student] +
-                             ["{:4}".format(students[student].get(x.strip(), "  ")) for x in header[2:-1]]
-                             + ["{:5.2f}".format(students[student]["coef"]), ])
+                data1.append(["{:>3d}".format(br), student] +
+                             ["{:>4}".format(students[student].get(x.strip(), "  ")) for x in header[1:-1]]
+                             + ["{:>5.2f}".format(students[student]["coef"]), ])
                 br += 1
         for item in data1:
-            self.textbox.insert(tk.END, " \t".join(item) + "\n")
+            self.textbox.insert(tk.END, "  ".join(item) + "\n")
         self.textbox.grid(row=0, column=0, sticky="nsew")
         self.textbox.config(state=tk.DISABLED)
 
@@ -185,7 +183,7 @@ class Page1(tk.Frame):
         rowConfigure(self, 2, [50, 1])
         columnConfigure(self, 2, [1, 0])
 
-        self.container = tk.Frame(self, background='#f0efed')
+        self.container = tk.Frame(self)
         self.container.grid(row=0, column=0, sticky="nsew")
 
         rowConfigure(self.container, 2, [1000, 1])
@@ -194,7 +192,7 @@ class Page1(tk.Frame):
         self.scrollbarx = ttk.Scrollbar(self.container, orient=tk.HORIZONTAL)
         self.scrollbary = ttk.Scrollbar(self.container)
         self.textbox = tk.Text(self.container, xscrollcommand=self.scrollbarx.set, wrap="none",
-                               font=ListFont, yscrollcommand=self.scrollbary.set)
+                               font=NormalFont, yscrollcommand=self.scrollbary.set)
 
         self.scrollbarx.configure(command=self.textbox.xview)
         self.scrollbary.configure(command=self.textbox.yview)
@@ -245,13 +243,9 @@ class Page2(tk.Frame):
 
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, background='black')
-        Font2 = ("Sen", 10)
 
-        rowConfigure(self, 3, [200, 1, 1])
+        rowConfigure(self, 2, [200, 1])
         columnConfigure(self, 4, [3, 1, 1, 1])
-
-        pomlbl1 = tk.Label(self, text="", bg='black', fg='white')
-        pomlbl1.grid(row=2, column=3)
 
         # listbox1 is for showing which results were saved
         container1 = tk.Frame(self)
@@ -262,7 +256,7 @@ class Page2(tk.Frame):
 
         scrollbarx1 = ttk.Scrollbar(container1, orient=tk.HORIZONTAL)
         scrollbary1 = ttk.Scrollbar(container1)
-        self.listbox1 = tk.Listbox(container1, xscrollcommand=scrollbarx1.set, font=Font2,
+        self.listbox1 = tk.Listbox(container1, xscrollcommand=scrollbarx1.set, font=NormalFont,
                                    yscrollcommand=scrollbary1.set, activestyle="none")
         scrollbarx1.configure(command=self.listbox1.xview)
         scrollbary1.configure(command=self.listbox1.yview)
@@ -286,7 +280,7 @@ class Page2(tk.Frame):
 
         scrollbarx2 = ttk.Scrollbar(container2, orient=tk.HORIZONTAL)
         scrollbary2 = ttk.Scrollbar(container2)
-        self.listbox2 = tk.Text(container2, width=10, xscrollcommand=scrollbarx2.set, font=("Sen", 10), wrap="none",
+        self.listbox2 = tk.Text(container2, width=10, xscrollcommand=scrollbarx2.set, font=NormalFont, wrap="none",
                                 yscrollcommand=scrollbary2.set, undo=True)
 
         scrollbarx2.configure(command=self.listbox2.xview)
@@ -305,7 +299,7 @@ class Page2(tk.Frame):
                   background=[('focus', 'white')])
 
         btnRemoveResult = ttk.Button(self, text="Ukloni rok", style="TButton", command=lambda: self.removeResult())
-        btnRemoveResult.grid(row=1, column=3, pady=10, sticky="w")
+        btnRemoveResult.grid(row=1, column=3, pady=20, sticky="w")
 
         def alterResult():
             ind = old_ind_page2
@@ -325,7 +319,7 @@ class Page2(tk.Frame):
                 app.pages[Page1].loadPage1()
 
         btnAlterResult = ttk.Button(self, text="Izmeni rok", style="TButton", command=alterResult)
-        btnAlterResult.grid(row=1, column=1, pady=10, sticky="e")
+        btnAlterResult.grid(row=1, column=1, pady=20, sticky="e")
 
 
 # Page class for adding results
@@ -336,28 +330,25 @@ class Page3(tk.Frame):
         rowConfigure(self, 6, [20, 10, 10, 10, 300, 10])
         columnConfigure(self, 4, [30, 1, 8, 12])
 
-        Font2 = ("Sen", 10)
         container = tk.Frame(self)
         container.grid(row=0, column=0, rowspan=5, padx=10, pady=10, sticky="nsew")
 
         rowConfigure(container, 2, [1000, 1])
         columnConfigure(container, 2, [1000, 1])
 
-        style = ttk.Style()
-        style.configure("Custom.Listbox", font=Font2)
         scrollbarx = ttk.Scrollbar(container, orient=tk.HORIZONTAL)
         scrollbary = ttk.Scrollbar(container)
-        listbox = tk.Text(container, wrap="none", xscrollcommand=scrollbarx.set,
-                          yscrollcommand=scrollbary.set, width=10, height=1, undo=True)
-        scrollbarx.configure(command=listbox.xview)
-        scrollbary.configure(command=listbox.yview)
+        textbox = tk.Text(container, wrap="none", xscrollcommand=scrollbarx.set,
+                          font=NormalFont, yscrollcommand=scrollbary.set, width=10, height=1, undo=True)
+        scrollbarx.configure(command=textbox.xview)
+        scrollbary.configure(command=textbox.yview)
 
-        listbox.grid(row=0, column=0, sticky="nsew")
+        textbox.grid(row=0, column=0, sticky="nsew")
         scrollbarx.grid(row=1, column=0, sticky="nsew")
         scrollbary.grid(row=0, column=1, sticky="nsew")
         content = ""
 
-        listbox.bind('<Control-v>', listboxPaste)
+        textbox.bind('<Control-v>', listboxPaste)
 
         def chooseFile():
             global filePath
@@ -365,11 +356,11 @@ class Page3(tk.Frame):
             if fp == "":
                 return
             filePath = fp
-            listbox.delete("1.0", tk.END)
+            textbox.delete("1.0", tk.END)
             nonlocal content
             content = read_pdf(filePath)
             for l1 in content:
-                listbox.insert(tk.END, l1 + "\n")
+                textbox.insert(tk.END, l1 + "\n")
 
         style1 = ttk.Style()
         style1.configure('TButton', font=SettingsFont, focuscolor='None', activebackground='white')
@@ -378,10 +369,10 @@ class Page3(tk.Frame):
         btnFileChoose = ttk.Button(self, text="Izaberite fajl", style="TButton", command=chooseFile)
         btnFileChoose.grid(row=5, column=0, padx=10, pady=10, sticky="n")
 
-        lblSemester = tk.Label(self, font=SettingsFontSmaller, bg='black', fg='white', text="Semestar")
+        lblSemester = tk.Label(self, font=SettingsFont, bg='black', fg='white', text="Semestar")
         lblSemester.grid(row=1, column=2, padx=10, pady=10, sticky="e")
 
-        cmbSemester = ttk.Combobox(self, font=SettingsFontSmaller, width=12)
+        cmbSemester = ttk.Combobox(self, font=SettingsFont, width=12)
         cmbSemester.grid(row=1, column=3, padx=10, pady=10, sticky="w")
         semesters = ["1. semestar", "2. semestar", "3. semestar", "4. semestar",
                      "5. semestar", "6. semestar", "7. semestar", "8. semestar"]
@@ -389,18 +380,18 @@ class Page3(tk.Frame):
         cmbSemester.state(["readonly"])
         cmbSemester.current(0)
 
-        lblSubject = tk.Label(self, font=SettingsFontSmaller, bg='black', fg='white', text="Predmet")
+        lblSubject = tk.Label(self, font=SettingsFont, bg='black', fg='white', text="Predmet")
         lblSubject.grid(row=2, column=2, padx=10, pady=10, sticky="e")
 
-        cmbSubject = ttk.Combobox(self, font=SettingsFontSmaller, width=12)
+        cmbSubject = ttk.Combobox(self, font=SettingsFont, width=12)
         cmbSubject.grid(row=2, column=3, padx=10, pady=10, sticky="w")
         cmbSubject["values"] = subjects[1]
         cmbSubject.state(["readonly"])
 
-        lblTerm = tk.Label(self, font=SettingsFontSmaller, bg='black', fg='white', text="Rok")
+        lblTerm = tk.Label(self, font=SettingsFont, bg='black', fg='white', text="Rok")
         lblTerm.grid(row=3, column=2, padx=10, pady=10, sticky="e")
 
-        cmbTerm = ttk.Combobox(self, font=SettingsFontSmaller, width=12)
+        cmbTerm = ttk.Combobox(self, font=SettingsFont, width=12)
         cmbTerm.grid(row=3, column=3, padx=10, pady=10, sticky="w")
         cmbTerm["values"] = ["januar", "februar", "jun", "jul", "avgust", "septembar"]
         cmbTerm.state(["readonly"])
@@ -424,15 +415,15 @@ class Page3(tk.Frame):
                 messagebox.showerror("Obaveštenje", "Niste izabrali semestar.")
                 return
             subject = cmbSubject.get()
-            listboxText = listbox.get("1.0", tk.END)
+            textboxText = textbox.get("1.0", tk.END)
             # Dodavanje liste, a ne rezultata
             if "godina" in subject:
                 fileName = "files/results/" + subject + ".txt"
                 if fileName in listOfResults:
                     messagebox.showerror("Obaveštenje", "Vec ste dodali listu za " + subject[0] + ". godinu.")
                     return
-                if saveResult(fileName, listboxText) == 1:
-                    listbox.delete("1.0", tk.END)
+                if saveResult(fileName, textboxText) == 1:
+                    textbox.delete("1.0", tk.END)
                     cmbSubject.set("")
                     listOfResults.append(fileName)
                     app.pages[Page1].loadPage1()
@@ -445,7 +436,7 @@ class Page3(tk.Frame):
             if cmbTerm.current() == -1:
                 messagebox.showerror("Obaveštenje", "Niste izabrali rok.")
                 return
-            if len(listboxText) < 11:
+            if len(textboxText) < 11:
                 messagebox.showerror("Obaveštenje", "Niste uneli važeći rok.")
                 return
             term = cmbTerm.get()[:3]
@@ -454,8 +445,8 @@ class Page3(tk.Frame):
             while fileName + str(num) + ".txt" in listOfResults:
                 num += 1
             fileName += str(num) + ".txt"
-            if saveResult(fileName, listboxText) == 1:
-                listbox.delete("1.0", tk.END)
+            if saveResult(fileName, textboxText) == 1:
+                textbox.delete("1.0", tk.END)
                 cmbSubject.set("")
                 listOfResults.append(fileName)
                 app.pages[Page1].loadPage1()
@@ -505,7 +496,6 @@ class Page4(tk.Frame):
 
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, background='black')
-
         rowConfigure(self, 7, [1, 1, 1, 1, 4, 1, 5])
         columnConfigure(self, 4, [3, 2, 3, 5])
 

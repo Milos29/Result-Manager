@@ -2,6 +2,9 @@ import tkinter as tk
 
 navy_blue = '#1D1D3A'
 vibrant_blue = '#194AFE'
+purple = '#6921B5'
+
+
 # Button class used for changing pages
 class ButtonRadiobutton(tk.Button):
     def selectBtn(self):
