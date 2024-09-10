@@ -4,6 +4,8 @@ from InOut import *
 
 # from clipboard import copyToClipboard
 
+from Expression import *
+
 from ButtonRadiobutton import *
 
 import tkinter as tk
@@ -140,7 +142,7 @@ class tkinterApp(tk.Tk):
             currentPageNumber = val
             self.showPage(Pages[currentPageNumber - 1])
 
-        showCurrentPage(1)
+        showCurrentPage(3)
         # Shows window after 20 ms so that user can't see other widgets
         self.after(20, func=lambda: self.deiconify())
 
@@ -327,11 +329,13 @@ class Page3(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, background='black')
 
-        rowConfigure(self, 6, [20, 10, 10, 10, 300, 10])
-        columnConfigure(self, 4, [30, 1, 8, 12])
+        Font = ("Sen", 12)
+
+        rowConfigure(self, 8, [10, 10, 10, 10, 10, 30, 100, 10])
+        columnConfigure(self, 4, [50, 1, 1, 6])
 
         container = tk.Frame(self)
-        container.grid(row=0, column=0, rowspan=5, padx=10, pady=10, sticky="nsew")
+        container.grid(row=0, column=0, rowspan=7, padx=10, pady=10, sticky="nsew")
 
         rowConfigure(container, 2, [1000, 1])
         columnConfigure(container, 2, [1000, 1])
@@ -363,36 +367,35 @@ class Page3(tk.Frame):
                 textbox.insert(tk.END, l1 + "\n")
 
         style1 = ttk.Style()
-        style1.configure('TButton', font=SettingsFont, focuscolor='None', activebackground='white')
-        style1.map('TButton', background=[('focus', 'white')])
+        style1.configure('C1.TButton', font=SettingsFont)
 
-        btnFileChoose = ttk.Button(self, text="Izaberite fajl", style="TButton", command=chooseFile)
-        btnFileChoose.grid(row=5, column=0, padx=10, pady=10, sticky="n")
+        btnFileChoose = ttk.Button(self, text="Izaberite fajl", style="C1.TButton", command=chooseFile)
+        btnFileChoose.grid(row=7, column=0, padx=10, pady=10, sticky="n")
 
-        lblSemester = tk.Label(self, font=SettingsFont, bg='black', fg='white', text="Semestar")
-        lblSemester.grid(row=1, column=2, padx=10, pady=10, sticky="e")
+        lblSemester = tk.Label(self, font=Font, bg='black', fg='white', text="Semestar")
+        lblSemester.grid(row=1, column=2, sticky="e")
 
-        cmbSemester = ttk.Combobox(self, font=SettingsFont, width=12)
-        cmbSemester.grid(row=1, column=3, padx=10, pady=10, sticky="w")
+        cmbSemester = ttk.Combobox(self, font=Font, width=12)
+        cmbSemester.grid(row=1, column=3, padx=5, pady=10)
         semesters = ["1. semestar", "2. semestar", "3. semestar", "4. semestar",
                      "5. semestar", "6. semestar", "7. semestar", "8. semestar"]
         cmbSemester["values"] = semesters
         cmbSemester.state(["readonly"])
         cmbSemester.current(0)
 
-        lblSubject = tk.Label(self, font=SettingsFont, bg='black', fg='white', text="Predmet")
-        lblSubject.grid(row=2, column=2, padx=10, pady=10, sticky="e")
+        lblSubject = tk.Label(self, font=Font, bg='black', fg='white', text="Predmet")
+        lblSubject.grid(row=2, column=2, sticky="e")
 
-        cmbSubject = ttk.Combobox(self, font=SettingsFont, width=12)
-        cmbSubject.grid(row=2, column=3, padx=10, pady=10, sticky="w")
+        cmbSubject = ttk.Combobox(self, font=Font, width=12)
+        cmbSubject.grid(row=2, column=3, padx=10, pady=10)
         cmbSubject["values"] = subjects[1]
         cmbSubject.state(["readonly"])
 
-        lblTerm = tk.Label(self, font=SettingsFont, bg='black', fg='white', text="Rok")
-        lblTerm.grid(row=3, column=2, padx=10, pady=10, sticky="e")
+        lblTerm = tk.Label(self, font=Font, bg='black', fg='white', text="Rok")
+        lblTerm.grid(row=3, column=2, sticky="e")
 
-        cmbTerm = ttk.Combobox(self, font=SettingsFont, width=12)
-        cmbTerm.grid(row=3, column=3, padx=10, pady=10, sticky="w")
+        cmbTerm = ttk.Combobox(self, font=Font, width=12)
+        cmbTerm.grid(row=3, column=3, padx=10, pady=10)
         cmbTerm["values"] = ["januar", "februar", "jun", "jul", "avgust", "septembar"]
         cmbTerm.state(["readonly"])
 
@@ -456,8 +459,95 @@ class Page3(tk.Frame):
                 messagebox.showerror("Obaveštenje",
                                      "Ovi razultati nisu u dobrom formatu. Format je( ... Indeks ... Ocena ...).")
 
-        btnAddResult = ttk.Button(self, text="Dodaj rok", style="TButton", command=addResult)
-        btnAddResult.grid(row=5, column=2, columnspan=2, padx=10, pady=10, sticky="n")
+        btnAddResult = ttk.Button(self, text="Dodaj rok", style="C1.TButton", command=addResult)
+        btnAddResult.grid(row=7, column=2, columnspan=2, padx=10, pady=10, sticky="n")
+
+        # Advanced options for adding results
+        container1 = tk.Frame(self, background='black', borderwidth=2, relief=tk.RIDGE)
+        # container1.grid(row=5, column=2, columnspan=2, padx=20, pady=20, sticky="nsew")
+
+        rowConfigure(container1, 3, [1, 1, 1])
+        columnConfigure(container1, 3, [1, 3, 3])
+
+        def showInfo():
+            messagebox.showinfo("Info", "Napredne opcije omogućavaju pravljenje novih rezultata od "
+                                        "postojećih. Uslovi se odvajaju zarezom, a dostupna je i funkcija count.\n"
+                                        "Primeri:\n"
+                                        "'P2>6' - Svi studenti koji su dobili ocenu veću od 6 iz Programiranja 2\n"
+                                        "'count(P2>7,Mat1,Pp2=8)>1' - Svi studenti koji su položili Programiranje 2 "
+                                        "sa ocenom većom od 7 ili položili Matematiku 1 ili dobili ocenu 8 iz "
+                                        "Praktikuma iz prograiranja 2, ali su postigli bar 2 od ove 3 stvari.\n"
+                                        "Napomena: operatori <= i >= nisu dozvoljeni, ako se ne stavi uslov za predmet "
+                                        "podrazumeva se da se gleda da li je ocena > 5, a ako se ne stavi uslov za"
+                                        " count podrazumeva se da se gleda da li je bar jedan uslov tačan")
+
+        style3 = ttk.Style()
+        style3.configure("C1.TLabel", background="#005FB8", anchor='center',height=1, foreground='white', font=('Calibri', 12))
+        btnInfo = ttk.Button(container1, style="C1.TLabel", text="i", width=1, command=showInfo)
+        btnInfo.grid(row=0, column=2, padx=10, pady=5, sticky="e")
+
+        lblOptions = tk.Label(container1, text="Napredne opcije", bg='black', fg='white', font=("Sen", 15))
+        lblOptions.grid(row=0, column=0, columnspan=2, sticky="new")
+
+        lblExpression = tk.Label(container1, text="Izraz", bg='black', fg='white', font=("Sen", 12))
+        lblExpression.grid(row=1, column=0)
+
+        txtExpression = ttk.Entry(container1, font=('Calibri', 12))
+        txtExpression.grid(row=1, column=1, columnspan=2, padx=15, sticky="ew")
+
+        lblGrade = tk.Label(container1, text="Ocena", bg='black', fg='white', font=("Sen", 12))
+        lblGrade.grid(row=2, column=0)
+
+        cmbGrade = ttk.Combobox(container1, width=5, font=("Sen", 12))
+        cmbGrade.grid(row=2, column=1, columnspan=2, padx=15, sticky="w")
+        cmbGrade["values"] = ["6", "7", "8", "9", "10"]
+        cmbGrade.state(["readonly"])
+
+        def addList():
+            if type(students) is tuple:
+                messagebox.showerror("Obaveštenje", "Neki dodat rok nije ispravan.")
+                return
+            if len(students) == 0:
+                messagebox.showerror("Obaveštenje", "Nijedan rok nije dodat.")
+                return
+            if cmbGrade.current() == -1:
+                messagebox.showerror("Obaveštenje", "Niste uneli ocenu koju zelite da svi na listi dobiju.")
+                return
+            txt = txtExpression.get()
+            if txt == "":
+                messagebox.showerror("Obaveštenje", "Niste uneli izraz za pravljenje liste.")
+                return
+            grade = cmbGrade.current() + 6
+            newtxt = evaluateExpression(txt, students, grade)
+            if newtxt == "f":
+                messagebox.showerror("Obaveštenje", "Izraz nije dobar.")
+                return
+            if newtxt == "":
+                messagebox.showerror("Obaveštenje", "Izraz nije dobar ili nema studenta sa datim osobinama.")
+                return
+            textbox.delete("1.0", tk.END)
+            textbox.insert(tk.END, newtxt)
+            messagebox.showinfo("Obaveštenje", "Lista je napravljena.")
+
+        style1 = ttk.Style()
+        style1.configure('C2.TButton', font=("Sen", 10))
+
+        btnAdd = ttk.Button(container1, text="Napravi listu", style="C2.TButton", command=addList)
+        btnAdd.grid(row=2, column=2)
+
+        self.moreOptions = tk.BooleanVar()
+
+        def onCheck():
+            if self.moreOptions.get():
+                container1.grid(row=5, column=2, columnspan=2, padx=20, pady=20, sticky="nsew")
+            else:
+                container1.grid_remove()
+
+        style2 = ttk.Style()
+        style2.configure('TCheckbutton', background='black', foreground='white', font=("Sen", 12))
+
+        chkMoreOptions = ttk.Checkbutton(self, text="Napredne opcije", variable=self.moreOptions, command=onCheck)
+        chkMoreOptions.grid(row=4, column=2, columnspan=2)
 
 
 # Settings page class
