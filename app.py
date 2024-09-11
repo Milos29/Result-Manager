@@ -101,7 +101,7 @@ class tkinterApp(tk.Tk):
 
         self.geometry("%dx%d+%d+%d" % (windowWidth, windowHeight, (fw - windowWidth) / 2, (fh - windowHeight) / 2))
         self.minsize(1300, 600)
-        self.iconbitmap("images/icon1.ico")
+        self.iconbitmap("images/icon.ico")
         self.title("Result Manager")
         onAppLoading()
         self.protocol("WM_DELETE_WINDOW", func=lambda: onAppClosing(self))
@@ -547,7 +547,7 @@ class Page3(tk.Frame):
         style2.configure('TCheckbutton', background='black', foreground='white', font=("Sen", 12))
 
         chkMoreOptions = ttk.Checkbutton(self, text="Napredne opcije", variable=self.moreOptions, command=onCheck)
-        chkMoreOptions.grid(row=4, column=2, columnspan=2)
+        chkMoreOptions.grid(row=4, column=2, columnspan=2, pady=15)
 
 
 # Settings page class
