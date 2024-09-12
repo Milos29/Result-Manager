@@ -144,15 +144,15 @@ def loadResults(listOfResults1, subjects, espb):
                 students[ind]["coef"] += i * 60 * coef
             break
 
-    term = {"jan": 1, "feb": 2, "jun": 3, "jul": 4, "avg": 5, "sep": 6}
-    listOfResults.sort(key=lambda x: -term[x[-9:-6]])
+    examPeriod = {"jan": 1, "feb": 2, "jun": 3, "jul": 4, "avg": 5, "sep": 6}
+    listOfResults.sort(key=lambda x: -examPeriod[x[-9:-6]])
     for fileName in listOfResults:
         subNick = fileName[fileName.rindex('/') + 1:fileName.index('-')]
         yr = (subjects[subNick]["semester"] + 1) // 2
         result = loadResult(fileName)
         coef = 1
         subSemInAYear = (subjects[subNick]["semester"] + 1) % 2 + 1
-        if term[fileName[-9:-6]] == subSemInAYear * 2 or term[fileName[-9:-6]] == subSemInAYear * 2 - 1:
+        if examPeriod[fileName[-9:-6]] == subSemInAYear * 2 or examPeriod[fileName[-9:-6]] == subSemInAYear * 2 - 1:
             coef = 1.1
         for line in result:
             line = line.replace("\t", " ").strip()

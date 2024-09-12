@@ -389,13 +389,13 @@ class Page3(tk.Frame):
         cmbSubject["values"] = subjects[1]
         cmbSubject.state(["readonly"])
 
-        lblTerm = tk.Label(self, font=Font, bg='black', fg='white', text="Rok")
-        lblTerm.grid(row=3, column=2, sticky="e")
+        lblExamPeriod = tk.Label(self, font=Font, bg='black', fg='white', text="Rok")
+        lblExamPeriod.grid(row=3, column=2, sticky="e")
 
-        cmbTerm = ttk.Combobox(self, font=Font, width=12)
-        cmbTerm.grid(row=3, column=3, padx=10, pady=10)
-        cmbTerm["values"] = ["januar", "februar", "jun", "jul", "avgust", "septembar"]
-        cmbTerm.state(["readonly"])
+        cmbExamPeriod = ttk.Combobox(self, font=Font, width=12)
+        cmbExamPeriod.grid(row=3, column=3, padx=10, pady=10)
+        cmbExamPeriod["values"] = ["januar", "februar", "jun", "jul", "avgust", "septembar"]
+        cmbExamPeriod.state(["readonly"])
 
         def onSemesterChange(event):
             ind = cmbSemester.current()
@@ -404,7 +404,7 @@ class Page3(tk.Frame):
             else:
                 cmbSubject["values"] = subjects[ind + 1] + [str((ind + 1) // 2) + ". godina", ]
             cmbSubject.set("")
-            cmbTerm.set("")
+            cmbExamPeriod.set("")
 
         cmbSemester.bind("<<ComboboxSelected>>", onSemesterChange)
 
@@ -434,14 +434,14 @@ class Page3(tk.Frame):
                     messagebox.showerror("Obaveštenje",
                                          "Ova lista nije u dobrom formatu. Format je( ... Indeks ... Ocena ...).")
                 return
-            if cmbTerm.current() == -1:
+            if cmbExamPeriod.current() == -1:
                 messagebox.showerror("Obaveštenje", "Niste izabrali rok.")
                 return
             if len(textboxText) < 11:
                 messagebox.showerror("Obaveštenje", "Niste uneli važeći rok.")
                 return
-            term = cmbTerm.get()[:3]
-            fileName = "files/results/" + subject + "-" + term + "-"
+            examPeriod = cmbExamPeriod.get()[:3]
+            fileName = "files/results/" + subject + "-" + examPeriod + "-"
             num = 1
             while fileName + str(num) + ".txt" in listOfResults:
                 num += 1
