@@ -6,8 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="5aae1348-12b7-499e-9c67-ffd7ecfb0488" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/icon1.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ButtonRadiobutton.py" beforeDir="false" afterPath="$PROJECT_DIR$/MenuButton.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Expression.py" beforeDir="false" afterPath="$PROJECT_DIR$/Expression.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/InOut.py" beforeDir="false" afterPath="$PROJECT_DIR$/InOut.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/App.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clipboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/Clipboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/files/listOfResults.txt" beforeDir="false" afterPath="$PROJECT_DIR$/files/listOfResults.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pdf.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pdf.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,9 +49,11 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Python.App.executor&quot;: &quot;Run&quot;,
     &quot;Python.ButtonRadiobutton.executor&quot;: &quot;Run&quot;,
     &quot;Python.Expression.executor&quot;: &quot;Run&quot;,
     &quot;Python.InOut.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Pdf.executor&quot;: &quot;Run&quot;,
     &quot;Python.app.executor&quot;: &quot;Run&quot;,
     &quot;Python.pdf.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
@@ -78,5 +85,16 @@
       <updated>1724658538582</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

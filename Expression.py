@@ -1,5 +1,6 @@
-def evalCOUNT(txt):
-    print("evalCount ulaz", txt)
+
+# Returns string made by modifying txt that can be used by built-in function eval() to evaluate it
+def modifyExpression(txt):
     lst = []
     badTxt = (";", 1)
     while 1:
@@ -7,7 +8,6 @@ def evalCOUNT(txt):
             i = txt.index("count")
         except ValueError:
             break
-        print(txt, lst, i)
         if txt[i + 5] != "(":
             return badTxt
         j = i + 6
@@ -24,6 +24,7 @@ def evalCOUNT(txt):
             return badTxt
         lst.append(txt[i + 6:j])
         txt = txt[:i] + "COUNT" + txt[j + 1:]
+
     txt = txt.split(",")
     txt = [x for x in txt if x != ""]
     for cond in range(len(txt)):
@@ -53,7 +54,7 @@ def evalCOUNT(txt):
                 return badTxt
         txt[cond] = txt[cond].replace("=", "==")
         if "COUNT" == txt[cond][:5]:
-            txt[cond] = "sum(" + str(evalCOUNT(lst[0])[0]) + ")" + txt[cond][5:]
+            txt[cond] = "sum(" + str(modifyExpression(lst[0])[0]) + ")" + txt[cond][5:]
             lst = lst[1:]
         else:
             txt[cond] = "students[student].get(\"" + txt[cond][:i] + "\",1)" + txt[cond][i:]
@@ -75,8 +76,8 @@ def evaluateExpression(txt, students, grade):
     if br != br1:
         return "f"
     try:
-        txt, l1 = evalCOUNT(txt)
-        txt = "sum(" + str(txt) + ")==" + str(l1)
+        txt, len1 = modifyExpression(txt)
+        txt = "sum(" + str(txt) + ")==" + str(len1)
         txt = txt.replace("\\", "")
         txt = txt.replace("\'", "")
         if ";" in txt:

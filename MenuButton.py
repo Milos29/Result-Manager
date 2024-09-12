@@ -6,7 +6,7 @@ purple = '#6921B5'
 
 
 # Button class used for changing pages
-class ButtonRadiobutton(tk.Button):
+class MenuButton(tk.Button):
     def selectBtn(self):
         self.config(background=vibrant_blue)
 
@@ -16,5 +16,5 @@ class ButtonRadiobutton(tk.Button):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.config(background=navy_blue, borderwidth=0, font=("Sen",14,"bold"),
+        self.config(background=navy_blue, borderwidth=0, font=("Sen", 14, "bold"),
                     foreground='white', relief='flat', width=40)
