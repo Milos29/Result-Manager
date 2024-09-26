@@ -88,10 +88,10 @@ def saveResult(fileName, lst):
     text = []
     for line in lst.split("\n"):
         line = line.strip()
-        # endInd = len(line) - 1
-        # while endInd > 0 and not (line[endInd].isdigit()):
-        #     endInd -= 1
-        # line = line[:endInd + 1]
+        endInd = len(line) - 1
+        while endInd > 0 and not (line[endInd].isdigit()):
+            endInd -= 1
+        line = line[:endInd + 1]
         if "соба" in line:
             line = line[:line.index("соба") - 1]
         if "ЕТФ" in line:

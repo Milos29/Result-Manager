@@ -5,14 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5aae1348-12b7-499e-9c67-ffd7ecfb0488" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Result-Manager.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Result-Manager.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/milos.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/milos.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/files/listOfResults.txt" beforeDir="false" afterPath="$PROJECT_DIR$/files/listOfResults.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/files/results/P2-jun-1.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/InOut.py" beforeDir="false" afterPath="$PROJECT_DIR$/InOut.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
