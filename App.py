@@ -19,7 +19,8 @@ pyglet.options['win32_gdi_font'] = True
 pyglet.font.add_directory('Sen/static')
 
 # Some fonts used for widgets
-SettingsFont = ('Sen', 15)
+fontName1 = "Arial"
+SettingsFont = (fontName1, 15)
 NormalFont = ('Courier', 11)
 
 windowWidth = 0
@@ -327,7 +328,7 @@ class Page3(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, background='black')
 
-        Font = ("Sen", 12)
+        Font = (fontName1, 12)
 
         rowConfigure(self, 8, [10, 10, 10, 10, 10, 30, 100, 10])
         columnConfigure(self, 4, [50, 1, 1, 6])
@@ -485,19 +486,19 @@ class Page3(tk.Frame):
         btnInfo = ttk.Button(container1, style="C1.TLabel", text="i", width=1, command=showInfo)
         btnInfo.grid(row=0, column=2, padx=10, pady=5, sticky="e")
 
-        lblOptions = tk.Label(container1, text="Napredne opcije", bg='black', fg='white', font=("Sen", 15))
+        lblOptions = tk.Label(container1, text="Napredne opcije", bg='black', fg='white', font=(fontName1, 15))
         lblOptions.grid(row=0, column=0, columnspan=2, sticky="new")
 
-        lblExpression = tk.Label(container1, text="Izraz", bg='black', fg='white', font=("Sen", 12))
+        lblExpression = tk.Label(container1, text="Izraz", bg='black', fg='white', font=(fontName1, 12))
         lblExpression.grid(row=1, column=0)
 
         txtExpression = ttk.Entry(container1, font=('Calibri', 12))
         txtExpression.grid(row=1, column=1, columnspan=2, padx=15, sticky="ew")
 
-        lblGrade = tk.Label(container1, text="Ocena", bg='black', fg='white', font=("Sen", 12))
+        lblGrade = tk.Label(container1, text="Ocena", bg='black', fg='white', font=(fontName1, 12))
         lblGrade.grid(row=2, column=0)
 
-        cmbGrade = ttk.Combobox(container1, width=5, font=("Sen", 12))
+        cmbGrade = ttk.Combobox(container1, width=5, font=(fontName1, 12))
         cmbGrade.grid(row=2, column=1, columnspan=2, padx=15, sticky="w")
         cmbGrade["values"] = ["6", "7", "8", "9", "10"]
         cmbGrade.state(["readonly"])
@@ -529,7 +530,7 @@ class Page3(tk.Frame):
             messagebox.showinfo("Obaveštenje", "Lista je napravljena.")
 
         style1 = ttk.Style()
-        style1.configure('C2.TButton', font=("Sen", 10))
+        style1.configure('C2.TButton', font=(fontName1, 10))
 
         btnAdd = ttk.Button(container1, text="Napravi listu", style="C2.TButton", command=addList)
         btnAdd.grid(row=2, column=2)
@@ -543,7 +544,7 @@ class Page3(tk.Frame):
                 container1.grid_remove()
 
         style2 = ttk.Style()
-        style2.configure('TCheckbutton', background='black', foreground='white', font=("Sen", 12))
+        style2.configure('TCheckbutton', background='black', foreground='white', font=(fontName1, 12))
 
         chkMoreOptions = ttk.Checkbutton(self, text="Napredne opcije", variable=self.moreOptions, command=onCheck)
         chkMoreOptions.grid(row=4, column=2, columnspan=2, pady=15)

@@ -141,7 +141,7 @@ def loadResults(listOfResults1, subjects, espb):
                 if ind not in students:
                     students[ind] = dict()
                     students[ind]["coef"] = 0.0
-                students[ind]["coef"] += i * 60 * coef
+                students[ind]["coef"] = i * 60 * coef
             break
 
     examPeriod = {"jan": 1, "feb": 2, "jun": 3, "jul": 4, "avg": 5, "sep": 6}
