@@ -1,6 +1,16 @@
 # For copying to clipboard, not needed anymore
 """"  from Clipboard import copyToClipboard  """
 
+# For using custom font(example: Sen font)
+""""
+sys.path.insert(0, 'pyglet')
+import pyglet
+
+# Pyglet doesn't show intended font without this
+pyglet.options['win32_gdi_font'] = True
+pyglet.font.add_directory('Sen/static')
+"""
+
 from Pdf import *
 from InOut import *
 from Expression import *
@@ -11,17 +21,11 @@ from tkinter import ttk, messagebox, filedialog
 
 import ctypes
 
-sys.path.insert(0, 'pyglet')
-import pyglet
-
-# Pyglet doesn't show intended font without this
-pyglet.options['win32_gdi_font'] = True
-pyglet.font.add_directory('Sen/static')
-
 # Some fonts used for widgets
-fontName1 = "Arial"
-SettingsFont = (fontName1, 15)
-NormalFont = ('Courier', 11)
+Arial10 = ("Arial", 10)
+Arial12 = ("Arial", 12)
+Arial15 = ("Arial", 15)
+Courier11 = ('Courier', 11)
 
 windowWidth = 0
 windowHeight = 0
@@ -91,11 +95,8 @@ class tkinterApp(tk.Tk):
         wp = 0.86  # percentage of width of the screen
         hp = 0.72  # percentage of height of the screen
 
-        # calculates size of screen without taskbar
-        rect = ctypes.wintypes.RECT()
-        ctypes.windll.user32.SystemParametersInfoA(48, 0, ctypes.byref(rect), 0)
-        fw = rect.right - rect.left
-        fh = rect.bottom - rect.top
+        fw = ctypes.windll.user32.GetSystemMetrics(0)
+        fh = ctypes.windll.user32.GetSystemMetrics(1)
         setWindowSize(int(fw * wp), int(fh * hp))
 
         self.geometry("%dx%d+%d+%d" % (windowWidth, windowHeight, (fw - windowWidth) / 2, (fh - windowHeight) / 2))
@@ -193,7 +194,7 @@ class Page1(tk.Frame):
         self.scrollbarx = ttk.Scrollbar(self.container, orient=tk.HORIZONTAL)
         self.scrollbary = ttk.Scrollbar(self.container)
         self.textbox = tk.Text(self.container, xscrollcommand=self.scrollbarx.set, wrap="none",
-                               font=NormalFont, yscrollcommand=self.scrollbary.set)
+                               font=Courier11, yscrollcommand=self.scrollbary.set)
 
         self.scrollbarx.configure(command=self.textbox.xview)
         self.scrollbary.configure(command=self.textbox.yview)
@@ -257,7 +258,7 @@ class Page2(tk.Frame):
 
         scrollbarx1 = ttk.Scrollbar(container1, orient=tk.HORIZONTAL)
         scrollbary1 = ttk.Scrollbar(container1)
-        self.listbox1 = tk.Listbox(container1, xscrollcommand=scrollbarx1.set, font=NormalFont,
+        self.listbox1 = tk.Listbox(container1, xscrollcommand=scrollbarx1.set, font=Courier11,
                                    yscrollcommand=scrollbary1.set, activestyle="none")
         scrollbarx1.configure(command=self.listbox1.xview)
         scrollbary1.configure(command=self.listbox1.yview)
@@ -281,7 +282,7 @@ class Page2(tk.Frame):
 
         scrollbarx2 = ttk.Scrollbar(container2, orient=tk.HORIZONTAL)
         scrollbary2 = ttk.Scrollbar(container2)
-        self.listbox2 = tk.Text(container2, width=10, xscrollcommand=scrollbarx2.set, font=NormalFont, wrap="none",
+        self.listbox2 = tk.Text(container2, width=10, xscrollcommand=scrollbarx2.set, font=Courier11, wrap="none",
                                 yscrollcommand=scrollbary2.set, undo=True)
 
         scrollbarx2.configure(command=self.listbox2.xview)
@@ -295,7 +296,7 @@ class Page2(tk.Frame):
         self.listbox2.bind('<Control-v>', copyPaste)
 
         style = ttk.Style()
-        style.configure('TButton', font=SettingsFont, focuscolor='None', activebackground='white')
+        style.configure('TButton', font=Arial15, focuscolor='None', activebackground='white')
         style.map('TButton',
                   background=[('focus', 'white')])
 
@@ -328,8 +329,6 @@ class Page3(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, background='black')
 
-        Font = (fontName1, 12)
-
         rowConfigure(self, 8, [10, 10, 10, 10, 10, 30, 100, 10])
         columnConfigure(self, 4, [50, 1, 1, 6])
 
@@ -342,7 +341,7 @@ class Page3(tk.Frame):
         scrollbarx = ttk.Scrollbar(container, orient=tk.HORIZONTAL)
         scrollbary = ttk.Scrollbar(container)
         textbox = tk.Text(container, wrap="none", xscrollcommand=scrollbarx.set,
-                          font=NormalFont, yscrollcommand=scrollbary.set, width=10, height=1, undo=True)
+                          font=Courier11, yscrollcommand=scrollbary.set, width=10, height=1, undo=True)
         scrollbarx.configure(command=textbox.xview)
         scrollbary.configure(command=textbox.yview)
 
@@ -366,15 +365,15 @@ class Page3(tk.Frame):
                 textbox.insert(tk.END, l1 + "\n")
 
         style1 = ttk.Style()
-        style1.configure('C1.TButton', font=SettingsFont)
+        style1.configure('C1.TButton', font=Arial15)
 
         btnFileChoose = ttk.Button(self, text="Izaberite fajl", style="C1.TButton", command=chooseFile)
         btnFileChoose.grid(row=7, column=0, padx=10, pady=10, sticky="n")
 
-        lblSemester = tk.Label(self, font=Font, bg='black', fg='white', text="Semestar")
+        lblSemester = tk.Label(self, font=Arial12, bg='black', fg='white', text="Semestar")
         lblSemester.grid(row=1, column=2, sticky="e")
 
-        cmbSemester = ttk.Combobox(self, font=Font, width=12)
+        cmbSemester = ttk.Combobox(self, font=Arial12, width=12)
         cmbSemester.grid(row=1, column=3, padx=5, pady=10)
         semesters = ["1. semestar", "2. semestar", "3. semestar", "4. semestar",
                      "5. semestar", "6. semestar", "7. semestar", "8. semestar"]
@@ -382,18 +381,18 @@ class Page3(tk.Frame):
         cmbSemester.state(["readonly"])
         cmbSemester.current(0)
 
-        lblSubject = tk.Label(self, font=Font, bg='black', fg='white', text="Predmet")
+        lblSubject = tk.Label(self, font=Arial12, bg='black', fg='white', text="Predmet")
         lblSubject.grid(row=2, column=2, sticky="e")
 
-        cmbSubject = ttk.Combobox(self, font=Font, width=12)
+        cmbSubject = ttk.Combobox(self, font=Arial12, width=12)
         cmbSubject.grid(row=2, column=3, padx=10, pady=10)
         cmbSubject["values"] = subjects[1]
         cmbSubject.state(["readonly"])
 
-        lblExamPeriod = tk.Label(self, font=Font, bg='black', fg='white', text="Rok")
+        lblExamPeriod = tk.Label(self, font=Arial12, bg='black', fg='white', text="Rok")
         lblExamPeriod.grid(row=3, column=2, sticky="e")
 
-        cmbExamPeriod = ttk.Combobox(self, font=Font, width=12)
+        cmbExamPeriod = ttk.Combobox(self, font=Arial12, width=12)
         cmbExamPeriod.grid(row=3, column=3, padx=10, pady=10)
         cmbExamPeriod["values"] = ["januar", "februar", "jun", "jul", "avgust", "septembar"]
         cmbExamPeriod.state(["readonly"])
@@ -486,19 +485,19 @@ class Page3(tk.Frame):
         btnInfo = ttk.Button(container1, style="C1.TLabel", text="i", width=1, command=showInfo)
         btnInfo.grid(row=0, column=2, padx=10, pady=5, sticky="e")
 
-        lblOptions = tk.Label(container1, text="Napredne opcije", bg='black', fg='white', font=(fontName1, 15))
+        lblOptions = tk.Label(container1, text="Napredne opcije", bg='black', fg='white', font=Arial15)
         lblOptions.grid(row=0, column=0, columnspan=2, sticky="new")
 
-        lblExpression = tk.Label(container1, text="Izraz", bg='black', fg='white', font=(fontName1, 12))
+        lblExpression = tk.Label(container1, text="Izraz", bg='black', fg='white', font=Arial12)
         lblExpression.grid(row=1, column=0)
 
         txtExpression = ttk.Entry(container1, font=('Calibri', 12))
         txtExpression.grid(row=1, column=1, columnspan=2, padx=15, sticky="ew")
 
-        lblGrade = tk.Label(container1, text="Ocena", bg='black', fg='white', font=(fontName1, 12))
+        lblGrade = tk.Label(container1, text="Ocena", bg='black', fg='white', font=Arial12)
         lblGrade.grid(row=2, column=0)
 
-        cmbGrade = ttk.Combobox(container1, width=5, font=(fontName1, 12))
+        cmbGrade = ttk.Combobox(container1, width=5, font=Arial12)
         cmbGrade.grid(row=2, column=1, columnspan=2, padx=15, sticky="w")
         cmbGrade["values"] = ["6", "7", "8", "9", "10"]
         cmbGrade.state(["readonly"])
@@ -530,7 +529,7 @@ class Page3(tk.Frame):
             messagebox.showinfo("Obaveštenje", "Lista je napravljena.")
 
         style1 = ttk.Style()
-        style1.configure('C2.TButton', font=(fontName1, 10))
+        style1.configure('C2.TButton', font=Arial10)
 
         btnAdd = ttk.Button(container1, text="Napravi listu", style="C2.TButton", command=addList)
         btnAdd.grid(row=2, column=2)
@@ -544,7 +543,7 @@ class Page3(tk.Frame):
                 container1.grid_remove()
 
         style2 = ttk.Style()
-        style2.configure('TCheckbutton', background='black', foreground='white', font=(fontName1, 12))
+        style2.configure('TCheckbutton', background='black', foreground='white', font=Arial12)
 
         chkMoreOptions = ttk.Checkbutton(self, text="Napredne opcije", variable=self.moreOptions, command=onCheck)
         chkMoreOptions.grid(row=4, column=2, columnspan=2, pady=15)
@@ -589,30 +588,30 @@ class Page4(tk.Frame):
         rowConfigure(self, 7, [1, 1, 1, 1, 4, 1, 5])
         columnConfigure(self, 4, [3, 2, 3, 5])
 
-        self.lblYearAdm = tk.Label(self, text="Godina upisa", bg='black', fg='white', font=SettingsFont)
+        self.lblYearAdm = tk.Label(self, text="Godina upisa", bg='black', fg='white', font=Arial15)
         self.lblYearAdm.grid(row=1, column=1, padx=20, sticky="e")
 
-        self.txtYearAdm = ttk.Entry(self, font=SettingsFont)
+        self.txtYearAdm = ttk.Entry(self, font=Arial15)
         self.txtYearAdm.grid(row=1, column=2, sticky="w")
 
-        self.lblYear = tk.Label(self, text="Godina", bg='black', fg='white', font=SettingsFont)
+        self.lblYear = tk.Label(self, text="Godina", bg='black', fg='white', font=Arial15)
         self.lblYear.grid(row=2, column=1, padx=20, sticky="e")
 
-        self.cmbYear = ttk.Combobox(self, font=SettingsFont, width=18)
+        self.cmbYear = ttk.Combobox(self, font=Arial15, width=18)
         self.cmbYear.grid(row=2, column=2, sticky="w")
         years = ["1. godina", "2.godina", "3. godina", "4. godina"]
         self.cmbYear["values"] = years
         self.cmbYear.state(["readonly"])
         self.cmbYear.current(0)
 
-        self.lblEspb = tk.Label(self, text="Espb", bg='black', fg='white', font=SettingsFont)
+        self.lblEspb = tk.Label(self, text="Espb", bg='black', fg='white', font=Arial15)
         self.lblEspb.grid(row=3, column=1, padx=20, sticky="e")
 
-        self.txtEspb = ttk.Entry(self, font=SettingsFont)
+        self.txtEspb = ttk.Entry(self, font=Arial15)
         self.txtEspb.grid(row=3, column=2, sticky="w")
 
         style = ttk.Style()
-        style.configure('TButton', font=SettingsFont, focuscolor='None', activebackground='white')
+        style.configure('TButton', font=Arial15, focuscolor='None', activebackground='white')
         style.map('TButton')
         btnSave = ttk.Button(self, text="Sačuvaj", style="TButton", command=lambda: self.BtnSave())
         btnSave.grid(row=6, column=1, columnspan=2)

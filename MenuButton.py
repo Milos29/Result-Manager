@@ -16,5 +16,5 @@ class MenuButton(tk.Button):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.config(background=navy_blue, borderwidth=0, font=("Sen", 14, "bold"),
-                    foreground='white', relief='flat', width=40)
+        self.config(background=navy_blue, borderwidth=0, font=("Arial", 15, "bold"),
+                    foreground='white', relief='flat',pady=6, width=40)
