@@ -350,8 +350,6 @@ class Page3(tk.Frame):
         scrollbary.grid(row=0, column=1, sticky="nsew")
         content = ""
 
-        textbox.bind('<Control-v>', copyPaste)
-
         def chooseFile():
             global filePath
             fp = filedialog.askopenfilename(title="Izaberite fajl", filetypes=(("PDF files", "*.pdf"),))

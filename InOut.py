@@ -5,7 +5,8 @@ from datetime import date
 # Returns list of all result file paths
 def loadListOfResults():
     lst = list()
-    with open("files/listOfResults.txt", "r", encoding="utf-8") as f:
+    filePath = os.path.join("files", "listOfResults.txt")
+    with open(filePath, "r", encoding="utf-8") as f:
         for line in f.readlines():
             lst.append(line.strip())
     return lst
@@ -13,7 +14,8 @@ def loadListOfResults():
 
 # Returns yearAdm(year of admission),year(which year of studies), number of espb that user entered
 def loadSettings():
-    with open("files/settings.txt", "r") as f:
+    filePath = os.path.join("files", "settings.txt")
+    with open(filePath, "r") as f:
         s = [x.strip() for x in f.readlines()]
         if len(s) < 3:
             return date.today().year, 1, 60
@@ -51,7 +53,8 @@ def loadSubjects():
     subjects = dict()
     for i in range(1, 9):
         subjects[i] = list()
-    with open("files/subjects.txt", "r") as f:
+    filePath = os.path.join("files", "subjects.txt")
+    with open(filePath, "r") as f:
         for line in f.readlines()[1:]:
             line = line.strip().split(",")
             subName = line[0].strip()
@@ -70,14 +73,16 @@ def loadSubjects():
 
 # Saves all result filepaths
 def saveListOfResults(lst):
-    with open("files/listOfResults.txt", "w", encoding="utf-8") as f:
+    filePath = os.path.join("files", "listOfResults.txt")
+    with open(filePath, "w", encoding="utf-8") as f:
         for line in lst:
             print(line, file=f)
 
 
 # Saves yearAdm(year of admission),year(which year of studies), number of espb that user entered
 def saveSettings(yearAdm, year, espb):
-    with open("files/settings.txt", "w", encoding="utf-8") as f:
+    filePath = os.path.join("files", "settings.txt")
+    with open(filePath, "w", encoding="utf-8") as f:
         print(yearAdm, file=f)
         print(year, file=f)
         print(espb, file=f)
@@ -117,7 +122,7 @@ def loadResults(listOfResults1, subjects, espb):
     pom1 = 0
     for i in range(1, 5):
         try:
-            ind = listOfResults.index("files/results/" + str(i) + ". godina.txt")
+            ind = listOfResults.index(os.path.join("files", "results", str(i) + ". godina.txt"))
             listOfResults.pop(ind)
             l1[i] = ind
             pom1 = i
@@ -126,7 +131,7 @@ def loadResults(listOfResults1, subjects, espb):
 
     for i in range(4, 0, -1):
         if l1[i] != -1:
-            fileName = "files/results/" + str(i) + ". godina.txt"
+            fileName = os.path.join("files", "results", str(i) + ". godina.txt")
             result = loadResult(fileName)
             for line in result:
                 line = line.replace("\t", " ").strip()
@@ -147,7 +152,8 @@ def loadResults(listOfResults1, subjects, espb):
     examPeriod = {"jan": 1, "feb": 2, "jun": 3, "jul": 4, "avg": 5, "sep": 6}
     listOfResults.sort(key=lambda x: -examPeriod[x[-9:-6]])
     for fileName in listOfResults:
-        subNick = fileName[fileName.rindex('/') + 1:fileName.index('-')]
+        subNick = os.path.basename(fileName)
+        subNick = subNick[:subNick.index('-')]
         yr = (subjects[subNick]["semester"] + 1) // 2
         result = loadResult(fileName)
         coef = 1
