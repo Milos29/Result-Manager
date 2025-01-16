@@ -1,5 +1,6 @@
 # For copying to clipboard, not needed anymore, Windows only
 """"  from Clipboard import copyToClipboard  """
+import os.path
 
 # For using custom font(example: Sen font)
 """"
@@ -8,7 +9,7 @@ import pyglet
 
 # Pyglet doesn't show intended font without this
 pyglet.options['win32_gdi_font'] = True
-pyglet.font.add_directory('Sen/static')
+pyglet.font.add_directory(os.path.join('Sen','static'))
 """
 
 from Pdf import *
@@ -18,8 +19,6 @@ from MenuButton import *
 
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
-
-import ctypes
 
 # Some fonts used for widgets
 Arial10 = ("Arial", 10)
@@ -62,15 +61,6 @@ def onAppClosing(self):
     saveListOfResults(listOfResults)
 
 
-def copyPaste(event):
-    try:
-        clipboardData = app.clipboard_get()
-        event.widget.insert(tk.INSERT, clipboardData)
-        event.widget.edit_separator()
-    except tk.TclError:
-        pass
-
-
 def rowConfigure(self, n, l1):
     for i in range(n):
         self.rowconfigure(i, weight=l1[i])
@@ -95,13 +85,15 @@ class tkinterApp(tk.Tk):
         wp = 0.86  # percentage of width of the screen
         hp = 0.72  # percentage of height of the screen
 
-        fw = ctypes.windll.user32.GetSystemMetrics(0)
-        fh = ctypes.windll.user32.GetSystemMetrics(1)
+        fw = tk.Tk.winfo_screenwidth(self)
+        fh = tk.Tk.winfo_screenheight(self)
+
         setWindowSize(int(fw * wp), int(fh * hp))
 
-        self.geometry("%dx%d+%d+%d" % (windowWidth, windowHeight, (fw - windowWidth) / 2, (fh - windowHeight) / 2))
+        self.geometry("%dx%d+%d+%d" % (windowWidth, windowHeight, (fw - windowWidth) / 2, (fh - windowHeight) / 2 - 30))
         self.minsize(1300, 600)
-        self.iconbitmap("images/icon.ico")
+        iconPath = os.path.join("images", "icon.ico")
+        self.iconbitmap(iconPath)
         self.title("Result Manager")
         onAppLoading()
         self.protocol("WM_DELETE_WINDOW", func=lambda: onAppClosing(self))
@@ -159,7 +151,7 @@ class Page1(tk.Frame):
                   + [f"{x:>{4}}" for x in subjects[(year - 1) * 2 + 2]] + ["Koeficijent", ])
         data1 = []
         if type(students) is tuple:
-            self.textbox.insert(tk.END, "Greška sa rezultatom " + students[1][students[1].rindex("/") + 1:]
+            self.textbox.insert(tk.END, "Greška sa rezultatom " + os.path.basename(students[1])
                                 + ". Ne možemo da prikažemo listu dok svi rezultati nisu dobro uneti.\n")
             self.textbox.grid(row=0, column=0, sticky="nsew")
             self.textbox.config(state=tk.DISABLED)
@@ -293,8 +285,6 @@ class Page2(tk.Frame):
         scrollbary2.grid(row=0, column=1, sticky="nsew")
         self.loadResultsToPage2()
 
-        self.listbox2.bind('<Control-v>', copyPaste)
-
         style = ttk.Style()
         style.configure('TButton', font=Arial15, focuscolor='None', activebackground='white')
         style.map('TButton',
@@ -314,7 +304,7 @@ class Page2(tk.Frame):
                 messagebox.showerror("Greška", "Ne možete da izmenite rok na ovaj način.")
                 return
             shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li želite da izmenite "
-                                               + resFileName[resFileName.rindex("/") + 1:] + " ?")
+                                               + os.path.basename(resFileName) + " ?")
             if shouldAltRes:
                 saveResult(resFileName, res)
                 messagebox.showinfo("Obaveštenje", "Izabrani fajl je izmenjen.")
@@ -417,7 +407,7 @@ class Page3(tk.Frame):
             textboxText = textbox.get("1.0", tk.END)
             # Dodavanje liste, a ne rezultata
             if "godina" in subject:
-                fileName = "files/results/" + subject + ".txt"
+                fileName = os.path.join("files", "results", subject + ".txt")
                 if fileName in listOfResults:
                     messagebox.showerror("Obaveštenje", "Vec ste dodali listu za " + subject[0] + ". godinu.")
                     return
@@ -439,7 +429,7 @@ class Page3(tk.Frame):
                 messagebox.showerror("Obaveštenje", "Niste uneli važeći rok.")
                 return
             examPeriod = cmbExamPeriod.get()[:3]
-            fileName = "files/results/" + subject + "-" + examPeriod + "-"
+            fileName = os.path.join("files", "results", subject + "-" + examPeriod + "-")
             num = 1
             while fileName + str(num) + ".txt" in listOfResults:
                 num += 1
