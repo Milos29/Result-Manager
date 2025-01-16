@@ -1,4 +1,4 @@
-### Result Manager
+# Result Manager
 
 Result Manager is a simple and intuitive desktop application designed to rank students of Software Engineering at the School
 of Electrical Engineering, University of Belgrade based on their coefficients. It's written in Python using Tkinter.
@@ -15,7 +15,7 @@ Result Management: Edit or delete previously saved results with ease.
 
 ## How To Use
 
-# Adding Results
+### Adding Results
 
 Open the application.
 
@@ -25,7 +25,7 @@ Specify the semester, subject, and exam period.
 
 Save the results to update the ranking.
 
-# Altering Results
+### Altering Results
 
 Previously saved results can be modified or removed from the system for accuracy and consistency.
 
