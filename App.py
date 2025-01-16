@@ -1,4 +1,4 @@
-# For copying to clipboard, not needed anymore
+# For copying to clipboard, not needed anymore, Windows only
 """"  from Clipboard import copyToClipboard  """
 
 # For using custom font(example: Sen font)

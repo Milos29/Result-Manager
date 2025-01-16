@@ -1,3 +1,5 @@
+# This is Windows only
+
 import ctypes
 
 from ctypes.wintypes import BOOL, HWND, HANDLE, HGLOBAL, UINT, LPVOID
