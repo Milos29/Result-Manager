@@ -7,14 +7,14 @@ purple = '#6921B5'
 
 # Button class used for changing pages
 class MenuButton(tk.Button):
-    def selectBtn(self):
+    def selectBtn(self) -> None:
         self.config(background=vibrant_blue)
 
-    def unselectBtn(self):
+    def unselectBtn(self) -> None:
         self.config(background=navy_blue)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.config(background=navy_blue, borderwidth=0, font=("Arial", 15, "bold"),
-                    foreground='white', relief='flat',pady=6, width=40)
+                    foreground='white', relief='flat', pady=6, width=40)

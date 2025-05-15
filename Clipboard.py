@@ -47,7 +47,7 @@ unicode_type = type(u'')
 
 
 # Copies given text to clipboard
-def copyToClipboard(data_str):
+def copyToClipboard(data_str:str)->None:
     # if not isinstance(data_str, unicode_type):
     #     data_str = data_str.decode('mbcs')
     data_str1 = data_str.encode('utf-16le')

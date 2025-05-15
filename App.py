@@ -1,6 +1,5 @@
 # For copying to clipboard, not needed anymore, Windows only
 """"  from Clipboard import copyToClipboard  """
-import os.path
 
 # For using custom font(example: Sen font)
 """"
@@ -12,13 +11,12 @@ pyglet.options['win32_gdi_font'] = True
 pyglet.font.add_directory(os.path.join('Sen','static'))
 """
 
-from Pdf import *
+from tkinter import ttk, messagebox, filedialog
+
+import Pdf
 from InOut import *
 from Expression import *
 from MenuButton import *
-
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
 
 # Some fonts used for widgets
 Arial10 = ("Arial", 10)
@@ -40,14 +38,14 @@ students = dict()
 
 
 # Sets global window size variables
-def setWindowSize(wt, ht):
+def setWindowSize(wt: int, ht: int) -> None:
     global windowWidth, windowHeight
     windowWidth = wt
     windowHeight = ht
 
 
 # Loading data when loading app
-def onAppLoading():
+def onAppLoading() -> None:
     global yearAdm, year, listOfResults, subjects, students, espb
     yearAdm, year, espb = loadSettings()
     listOfResults = loadListOfResults()
@@ -55,29 +53,29 @@ def onAppLoading():
 
 
 # Saving data when closing app
-def onAppClosing(self):
+def onAppClosing(self) -> None:
     self.destroy()
     saveSettings(yearAdm, year, espb)
     saveListOfResults(listOfResults)
 
 
-def rowConfigure(self, n, l1):
+def rowConfigure(self, n: int, l1: list) -> None:
     for i in range(n):
         self.rowconfigure(i, weight=l1[i])
 
 
-def columnConfigure(self, n, l1):
+def columnConfigure(self, n: int, l1: list) -> None:
     for i in range(n):
         self.columnconfigure(i, weight=l1[i])
 
 
 # Main app class
 class tkinterApp(tk.Tk):
-    def showPage(self, Page):
+    def showPage(self, Page) -> None:
         page = self.pages[Page]
         page.tkraise()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         tk.Tk.__init__(self, *args, **kwargs)
         # Hides window until it fully loads
         self.withdraw()
@@ -123,12 +121,15 @@ class tkinterApp(tk.Tk):
             self.pages[Page] = page
             page.grid(row=1, column=0, columnspan=4, sticky="nsew")
 
-        def showCurrentPage(val):
+        def showCurrentPage(val: int) -> None:
+            global currentPageNumber
+
             if val < 1 or val > 4:
                 val = 1
-            global currentPageNumber
+
             if currentPageNumber == val:
                 return
+
             rbs[currentPageNumber - 1].unselectBtn()
             rbs[val - 1].selectBtn()
             currentPageNumber = val
@@ -141,7 +142,7 @@ class tkinterApp(tk.Tk):
 
 # Page class for showing students ranked
 class Page1(tk.Frame):
-    def loadPage1(self):
+    def loadPage1(self) -> None:
         self.textbox.grid_remove()
         self.textbox.config(state=tk.NORMAL)
         global students
@@ -150,6 +151,7 @@ class Page1(tk.Frame):
         header = ([" Br     Indeks", ] + [f"{x:>{4}}" for x in subjects[(year - 1) * 2 + 1]]
                   + [f"{x:>{4}}" for x in subjects[(year - 1) * 2 + 2]] + ["Koeficijent", ])
         data1 = []
+
         if type(students) is tuple:
             self.textbox.insert(tk.END, "Greška sa rezultatom " + os.path.basename(students[1])
                                 + ". Ne možemo da prikažemo listu dok svi rezultati nisu dobro uneti.\n")
@@ -160,18 +162,21 @@ class Page1(tk.Frame):
         self.textbox.insert(tk.END, "  ".join(header) + "\n")
         yr = str(yearAdm)
         br = 1
+
         for student in sorted(students, key=lambda x: -students[x]["coef"]):
             if yr in student:
                 data1.append(["{:>3d}".format(br), student] +
                              ["{:>4}".format(students[student].get(x.strip(), "  ")) for x in header[1:-1]]
                              + ["{:>5.2f}".format(students[student]["coef"]), ])
                 br += 1
+
         for item in data1:
             self.textbox.insert(tk.END, "  ".join(item) + "\n")
+
         self.textbox.grid(row=0, column=0, sticky="nsew")
         self.textbox.config(state=tk.DISABLED)
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         tk.Frame.__init__(self, parent)
 
         rowConfigure(self, 2, [50, 1])
@@ -200,7 +205,7 @@ class Page1(tk.Frame):
 # Page class for seeing, changing and deleting saved results
 class Page2(tk.Frame):
 
-    def loadResultsToPage2(self):
+    def loadResultsToPage2(self) -> None:
         self.listbox1.delete(0, tk.END)
         self.listbox2.delete("1.0", tk.END)
         global oldIndPage2
@@ -208,22 +213,25 @@ class Page2(tk.Frame):
         for r in listOfResults:
             self.listbox1.insert(tk.END, r)
 
-    def changeToSelectedResult(self):
+    def changeToSelectedResult(self) -> None:
         ind = self.listbox1.curselection()
         global oldIndPage2
+
         if ind and ind[0] != oldIndPage2:
             oldIndPage2 = ind[0]
             self.listbox2.delete("1.0", tk.END)
-            r = loadResult(self.listbox1.get(ind[0]))
+            r = loadResultsFile(self.listbox1.get(ind[0]))
             for line in r:
                 self.listbox2.insert(tk.END, line + "\n")
             app.pages[Page1].loadPage1()
 
-    def removeResult(self):
+    def removeResult(self) -> None:
         ind = self.listbox1.curselection()
+
         if not ind:
             messagebox.showerror("Greška", "Niste izabrali rok koji želite da obrišete.")
             return
+
         shouldDelRes = messagebox.askyesno("Potvrdite radnju", "Da li želite da izbrišete izabrani rok?")
 
         if shouldDelRes:
@@ -235,7 +243,7 @@ class Page2(tk.Frame):
             app.pages[Page1].loadPage1()
             messagebox.showinfo("Obaveštenje", "Izabrani fajl je obrisan.")
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         tk.Frame.__init__(self, parent, background='black')
 
         rowConfigure(self, 2, [200, 1])
@@ -293,16 +301,20 @@ class Page2(tk.Frame):
         btnRemoveResult = ttk.Button(self, text="Ukloni rok", style="TButton", command=lambda: self.removeResult())
         btnRemoveResult.grid(row=1, column=3, pady=20, sticky="w")
 
-        def alterResult():
+        def alterResult() -> None:
             ind = oldIndPage2
+
             if ind == -1:
                 messagebox.showerror("Greška", "Niste izabrali rok koji želite da izmenite.")
                 return
+
             res = self.listbox2.get("1.0", tk.END)
             resFileName = self.listbox1.get(ind)
+
             if len(res) == 0:
                 messagebox.showerror("Greška", "Ne možete da izmenite rok na ovaj način.")
                 return
+
             shouldAltRes = messagebox.askyesno("Potvrdite radnju", "Da li želite da izmenite "
                                                + os.path.basename(resFileName) + " ?")
             if shouldAltRes:
@@ -316,7 +328,7 @@ class Page2(tk.Frame):
 
 # Page class for adding results
 class Page3(tk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         tk.Frame.__init__(self, parent, background='black')
 
         rowConfigure(self, 8, [10, 10, 10, 10, 10, 30, 100, 10])
@@ -340,7 +352,7 @@ class Page3(tk.Frame):
         scrollbary.grid(row=0, column=1, sticky="nsew")
         content = ""
 
-        def chooseFile():
+        def chooseFile() -> None:
             global filePath
             fp = filedialog.askopenfilename(title="Izaberite fajl", filetypes=(("PDF files", "*.pdf"),))
             if fp == "":
@@ -348,7 +360,7 @@ class Page3(tk.Frame):
             filePath = fp
             textbox.delete("1.0", tk.END)
             nonlocal content
-            content = readPdf(filePath)
+            content = Pdf.readResultsFile(filePath)
             for l1 in content:
                 textbox.insert(tk.END, l1 + "\n")
 
@@ -385,7 +397,7 @@ class Page3(tk.Frame):
         cmbExamPeriod["values"] = ["januar", "februar", "jun", "jul", "avgust", "septembar"]
         cmbExamPeriod.state(["readonly"])
 
-        def onSemesterChange(event):
+        def onSemesterChange(event) -> None:
             ind = cmbSemester.current()
             if ind % 2 == 0:
                 cmbSubject["values"] = subjects[ind + 1]
@@ -396,7 +408,7 @@ class Page3(tk.Frame):
 
         cmbSemester.bind("<<ComboboxSelected>>", onSemesterChange)
 
-        def addResult():
+        def addResult() -> None:
             if cmbSubject.current() == -1:
                 messagebox.showerror("Obaveštenje", "Niste izabrali predmet.")
                 return
@@ -455,7 +467,7 @@ class Page3(tk.Frame):
         rowConfigure(container1, 3, [1, 1, 1])
         columnConfigure(container1, 3, [1, 3, 3])
 
-        def showInfo():
+        def showInfo() -> None:
             messagebox.showinfo("Info", "Napredne opcije omogućavaju pravljenje novih rezultata od "
                                         "postojećih. Uslovi se odvajaju zarezom, a dostupna je i funkcija count.\n"
                                         "Primeri:\n"
@@ -490,28 +502,35 @@ class Page3(tk.Frame):
         cmbGrade["values"] = ["6", "7", "8", "9", "10"]
         cmbGrade.state(["readonly"])
 
-        def addList():
+        def addList() -> None:
             if type(students) is tuple:
                 messagebox.showerror("Obaveštenje", "Neki dodat rok nije ispravan.")
                 return
+
             if len(students) == 0:
                 messagebox.showerror("Obaveštenje", "Nijedan rok nije dodat.")
                 return
+
             if cmbGrade.current() == -1:
                 messagebox.showerror("Obaveštenje", "Niste uneli ocenu koju zelite da svi na listi dobiju.")
                 return
+
             txt = txtExpression.get()
+
             if txt == "":
                 messagebox.showerror("Obaveštenje", "Niste uneli izraz za pravljenje liste.")
                 return
+
             grade = cmbGrade.current() + 6
             newtxt = evaluateExpression(txt, students, grade)
+
             if newtxt == "f":
                 messagebox.showerror("Obaveštenje", "Izraz nije dobar.")
                 return
             if newtxt == "":
                 messagebox.showerror("Obaveštenje", "Izraz nije dobar ili nema studenta sa datim osobinama.")
                 return
+
             textbox.delete("1.0", tk.END)
             textbox.insert(tk.END, newtxt)
             messagebox.showinfo("Obaveštenje", "Lista je napravljena.")
@@ -539,39 +558,37 @@ class Page3(tk.Frame):
 
 # Settings page class
 class Page4(tk.Frame):
-    def BtnSave(self):
+    def BtnSave(self) -> None:
         global year, yearAdm, espb
         yA = self.txtYearAdm.get()
         es = self.txtEspb.get()
         badInput = False
-        if len(yA) != 4 or yA[0] != '2':
-            badInput = True
-        for c in yA:
+
+        for c in yA+es:
             if not c.isdigit():
                 badInput = True
                 break
-        for c in es:
-            if not c.isdigit():
-                badInput = True
-                break
+
         if badInput:
             messagebox.showerror("Obaveštenje", "Neki podatak nije dobro unet.")
             return
+
         if int(es) == 0:
             messagebox.showerror("Obaveštenje", "Espb ne može biti 0.")
             return
+
         yearAdm = int(yA)
         year = self.cmbYear.current() + 1
         espb = int(es)
         app.pages[Page1].loadPage1()
         messagebox.showinfo("Obaveštenje", "Sačuvali ste podešavanja.")
 
-    def onSettingsLoaded(self):
+    def onSettingsLoaded(self) -> None:
         self.txtYearAdm.insert(tk.END, str(yearAdm))
         self.cmbYear.current(year - 1)
         self.txtEspb.insert(tk.END, str(espb))
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         tk.Frame.__init__(self, parent, background='black')
         rowConfigure(self, 7, [1, 1, 1, 1, 4, 1, 5])
         columnConfigure(self, 4, [3, 2, 3, 5])
