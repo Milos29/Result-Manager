@@ -1,5 +1,8 @@
 # For copying to clipboard, not needed anymore, Windows only
 """"  from Clipboard import copyToClipboard  """
+import ctypes
+
+from LongMessageBox import showLongInfo
 
 # For using custom font(example: Sen font)
 """"
@@ -76,7 +79,7 @@ class tkinterApp(tk.Tk):
         page.tkraise()
 
     def __init__(self, *args, **kwargs) -> None:
-        tk.Tk.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Hides window until it fully loads
         self.withdraw()
 
@@ -135,7 +138,7 @@ class tkinterApp(tk.Tk):
             currentPageNumber = val
             self.showPage(Pages[currentPageNumber - 1])
 
-        showCurrentPage(3)
+        showCurrentPage(4)
         # Shows window after 20 ms so that user can't see other widgets
         self.after(20, func=lambda: self.deiconify())
 
@@ -177,7 +180,7 @@ class Page1(tk.Frame):
         self.textbox.config(state=tk.DISABLED)
 
     def __init__(self, parent) -> None:
-        tk.Frame.__init__(self, parent)
+        super().__init__(parent)
 
         rowConfigure(self, 2, [50, 1])
         columnConfigure(self, 2, [1, 0])
@@ -244,7 +247,7 @@ class Page2(tk.Frame):
             messagebox.showinfo("Obaveštenje", "Izabrani fajl je obrisan.")
 
     def __init__(self, parent) -> None:
-        tk.Frame.__init__(self, parent, background='black')
+        super().__init__(parent, background='black')
 
         rowConfigure(self, 2, [200, 1])
         columnConfigure(self, 4, [3, 1, 1, 1])
@@ -329,7 +332,7 @@ class Page2(tk.Frame):
 # Page class for adding results
 class Page3(tk.Frame):
     def __init__(self, parent) -> None:
-        tk.Frame.__init__(self, parent, background='black')
+        super().__init__(parent, background='black')
 
         rowConfigure(self, 8, [10, 10, 10, 10, 10, 30, 100, 10])
         columnConfigure(self, 4, [50, 1, 1, 6])
@@ -558,13 +561,13 @@ class Page3(tk.Frame):
 
 # Settings page class
 class Page4(tk.Frame):
-    def BtnSave(self) -> None:
+    def btnSave(self) -> None:
         global year, yearAdm, espb
         yA = self.txtYearAdm.get()
         es = self.txtEspb.get()
         badInput = False
 
-        for c in yA+es:
+        for c in yA + es:
             if not c.isdigit():
                 badInput = True
                 break
@@ -583,13 +586,31 @@ class Page4(tk.Frame):
         app.pages[Page1].loadPage1()
         messagebox.showinfo("Obaveštenje", "Sačuvali ste podešavanja.")
 
+    def showSubjectList(self) -> None:
+        msg = ""
+        self.lblEspb.focus_set()
+
+        for i in range(1, 9):
+            msg += "\n\n" + "{:>50s}".format(str(i) + ". semestar:") + "\n\n"
+            nicks = subjects[i]
+            for nick in nicks:
+                subjectType = subjects[nick]["compulsory"]
+                if subjectType == "o":
+                    subjectType = "obavezan"
+                else:
+                    subjectType = "izborni"
+                msg += ("{:>50s}".format(subjects[nick]["name"]) + "   " + "{:>4s}".format(nick) + "   "
+                        + "{:>2d}".format(subjects[nick]["espb"]) + "   " + "{:>8s}".format(subjectType) + "\n")
+
+        showLongInfo(900, 700, 200, 100, "Spisak predmeta", msg)
+
     def onSettingsLoaded(self) -> None:
         self.txtYearAdm.insert(tk.END, str(yearAdm))
         self.cmbYear.current(year - 1)
         self.txtEspb.insert(tk.END, str(espb))
 
     def __init__(self, parent) -> None:
-        tk.Frame.__init__(self, parent, background='black')
+        super().__init__(parent, background='black')
         rowConfigure(self, 7, [1, 1, 1, 1, 4, 1, 5])
         columnConfigure(self, 4, [3, 2, 3, 5])
 
@@ -615,10 +636,16 @@ class Page4(tk.Frame):
         self.txtEspb = ttk.Entry(self, font=Arial15)
         self.txtEspb.grid(row=3, column=2, sticky="w")
 
-        style = ttk.Style()
-        style.configure('TButton', font=Arial15, focuscolor='None', activebackground='white')
-        style.map('TButton')
-        btnSave = ttk.Button(self, text="Sačuvaj", style="TButton", command=lambda: self.BtnSave())
+        style1 = ttk.Style()
+        style1.configure('TButton', font=Arial10, focuscolor='None', activebackground='white')
+        style1.map('TButton')
+        btnSubjectList = ttk.Button(self, text="Prikaži spisak predmeta", style="TButton", command=self.showSubjectList)
+        btnSubjectList.grid(row=4, column=1, columnspan=2, sticky="n", pady=30)
+
+        style2 = ttk.Style()
+        style2.configure('TButton', font=Arial15, focuscolor='None', activebackground='white')
+        style2.map('TButton')
+        btnSave = ttk.Button(self, text="Sačuvaj", style="TButton", command=self.btnSave)
         btnSave.grid(row=6, column=1, columnspan=2)
 
         self.onSettingsLoaded()
