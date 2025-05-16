@@ -475,7 +475,7 @@ class Page3(tk.Frame):
                                         "'count(P2>7,Mat1,Pp2=8)>1' - Svi studenti koji su položili Programiranje 2 "
                                         "sa ocenom većom od 7 ili položili Matematiku 1 ili dobili ocenu 8 iz "
                                         "Praktikuma iz programiranja 2, ali su postigli bar 2 od ove 3 stvari.\n"
-                                        "Napomena: operatori <= i >= nisu dozvoljeni, ako se ne stavi uslov za predmet "
+                                        "Napomena: ako se ne stavi uslov za predmet "
                                         "podrazumeva se da se gleda da li je ocena > 5, a ako se ne stavi uslov za"
                                         " count podrazumeva se da se gleda da li je bar jedan uslov tačan.")
 

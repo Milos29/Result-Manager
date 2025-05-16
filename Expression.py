@@ -38,7 +38,7 @@ def modifyExpression(txt):
     for cond in range(len(txt)):
         i = inf
 
-        for c in ["<", ">", "="]:
+        for c in ["<", ">", "=", "≥", "≤"]:
             if c in txt[cond]:
                 j = txt[cond].index(c)
                 if j < i:
@@ -75,6 +75,8 @@ def evaluateExpression(txt, students, grade):
     txtcpy = txt
     okChars = [",", "<", "=", ">", "(", ")", '.']
     txt = ''.join([c for c in txtcpy if c.isdigit() or c.isalpha() or c in okChars])
+    txt = txt.replace(">=", "≥")
+    txt = txt.replace("<=", "≤")
 
     countCnt1 = txt.count("count")
     countCnt2 = txtcpy.lower().count("count")
@@ -85,16 +87,16 @@ def evaluateExpression(txt, students, grade):
     try:
         txt, len1 = modifyExpression(txt)
         txt = "sum(" + str(txt) + ")==" + str(len1)
-        txt = txt.replace("\\", "")
-        txt = txt.replace("\'", "")
-        print(txt)
+
+        for pair in [["\\", ""], ["\'", ""], ["≥", ">="], ["≤", "<="]]:
+            txt = txt.replace(pair[0], pair[1])
 
         if ";" in txt:
             return "f"
 
         cnt = 1
 
-        for student in sorted(students, key=lambda x: -students[x]["coef"]):
+        for student in sorted(students, key=lambda x: (x[:4], -students[x]["coef"])):
             if eval(txt):
                 newtxt += "{:>3d}".format(cnt) + " " + student + " " + grade + "\n"
                 cnt += 1
