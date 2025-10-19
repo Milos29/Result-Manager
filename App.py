@@ -33,11 +33,21 @@ currentPageNumber = 0
 filePath = ""
 
 listOfResults = list()
+listOfWantedResults = list()
 yearAdm = 0
 year = 0
 espb = 1
 subjects = dict()
 students = dict()
+resultNameLength = 50
+
+
+def getResultNameWithoutStatus(r: str) -> str:
+    return r[:r.index("  ")]
+
+
+def getResultNameWithStatus(r: str, c: str) -> str:
+    return f"{r:<{resultNameLength - 1}}{c:}"
 
 
 # Sets global window size variables
@@ -49,9 +59,10 @@ def setWindowSize(wt: int, ht: int) -> None:
 
 # Loading data when loading app
 def onAppLoading() -> None:
-    global yearAdm, year, listOfResults, subjects, students, espb
+    global yearAdm, year, listOfResults, subjects, students, espb, listOfWantedResults
     yearAdm, year, espb = loadSettings()
     listOfResults = loadListOfResults()
+    listOfWantedResults = loadListOfWantedResults()
     subjects = loadSubjects()
 
 
@@ -60,6 +71,7 @@ def onAppClosing(self) -> None:
     self.destroy()
     saveSettings(yearAdm, year, espb)
     saveListOfResults(listOfResults)
+    saveListOfWantedResults(listOfWantedResults)
 
 
 def rowConfigure(self, n: int, l1: list) -> None:
@@ -138,7 +150,7 @@ class tkinterApp(tk.Tk):
             currentPageNumber = val
             self.showPage(Pages[currentPageNumber - 1])
 
-        showCurrentPage(4)
+        showCurrentPage(1)
         # Shows window after 20 ms so that user can't see other widgets
         self.after(20, func=lambda: self.deiconify())
 
@@ -149,15 +161,16 @@ class Page1(tk.Frame):
         self.textbox.grid_remove()
         self.textbox.config(state=tk.NORMAL)
         global students
-        students = loadResults(listOfResults, subjects, espb)
+        students = loadResults(listOfWantedResults, subjects, espb)
         self.textbox.delete("1.0", tk.END)
         header = ([" Br     Indeks", ] + [f"{x:>{4}}" for x in subjects[(year - 1) * 2 + 1]]
                   + [f"{x:>{4}}" for x in subjects[(year - 1) * 2 + 2]] + ["Koeficijent", ])
         data1 = []
 
         if type(students) is tuple:
-            self.textbox.insert(tk.END, "Greška sa rezultatom " + os.path.basename(students[1])
+            self.textbox.insert(tk.END, "Greška sa rezultatom " + os.path.basename(students[2])
                                 + ". Ne možemo da prikažemo listu dok svi rezultati nisu dobro uneti.\n")
+            self.textbox.insert(tk.END, students[1])
             self.textbox.grid(row=0, column=0, sticky="nsew")
             self.textbox.config(state=tk.DISABLED)
             return
@@ -214,18 +227,40 @@ class Page2(tk.Frame):
         global oldIndPage2
         oldIndPage2 = -1
         for r in listOfResults:
-            self.listbox1.insert(tk.END, r)
+            if r in listOfWantedResults:
+                self.listbox1.insert(tk.END, getResultNameWithStatus(r, "+"))
+            else:
+                self.listbox1.insert(tk.END, getResultNameWithStatus(r, "-"))
 
     def changeToSelectedResult(self) -> None:
         ind = self.listbox1.curselection()
         global oldIndPage2
 
-        if ind and ind[0] != oldIndPage2:
+        if not ind:
+            return
+
+        if ind[0] != oldIndPage2:
             oldIndPage2 = ind[0]
             self.listbox2.delete("1.0", tk.END)
-            r = loadResultsFile(self.listbox1.get(ind[0]))
+            s = self.listbox1.get(ind[0])
+            s = s[:s.index("  ")]
+            r = loadResultsFile(s)
             for line in r:
                 self.listbox2.insert(tk.END, line + "\n")
+        else:
+            self.listbox1.delete(ind[0])
+            s = listOfResults[ind[0]]
+            self.listbox1.unbind("<<ListboxSelect>>")
+            if s in listOfWantedResults:
+                self.listbox1.insert(ind[0], getResultNameWithStatus(s, "-"))
+
+                listOfWantedResults.remove(s)
+            else:
+                self.listbox1.insert(ind[0], getResultNameWithStatus(s, "+"))
+                listOfWantedResults.insert(ind[0], s)
+
+            self.listbox1.selection_set(ind[0])
+            self.listbox1.bind("<<ListboxSelect>>", lambda event: self.changeToSelectedResult())
             app.pages[Page1].loadPage1()
 
     def removeResult(self) -> None:
@@ -238,9 +273,11 @@ class Page2(tk.Frame):
         shouldDelRes = messagebox.askyesno("Potvrdite radnju", "Da li želite da izbrišete izabrani rok?")
 
         if shouldDelRes:
-            resFileName = self.listbox1.get(ind[0])
+            resFileName = getResultNameWithoutStatus(self.listbox1.get(ind[0]))
             deleteFile(resFileName)
             listOfResults.remove(resFileName)
+            if resFileName in listOfWantedResults:
+                listOfWantedResults.remove(resFileName)
             self.loadResultsToPage2()
             self.listbox2.delete("1.0", tk.END)
             app.pages[Page1].loadPage1()
@@ -312,7 +349,7 @@ class Page2(tk.Frame):
                 return
 
             res = self.listbox2.get("1.0", tk.END)
-            resFileName = self.listbox1.get(ind)
+            resFileName = getResultNameWithoutStatus(self.listbox1.get(ind))
 
             if len(res) == 0:
                 messagebox.showerror("Greška", "Ne možete da izmenite rok na ovaj način.")
@@ -430,6 +467,7 @@ class Page3(tk.Frame):
                     textbox.delete("1.0", tk.END)
                     cmbSubject.set("")
                     listOfResults.append(fileName)
+                    listOfWantedResults.append(fileName)
                     app.pages[Page1].loadPage1()
                     app.pages[Page2].loadResultsToPage2()
                     messagebox.showinfo("Obaveštenje", "Rezultat roka je uspešno dodat.")
@@ -453,6 +491,7 @@ class Page3(tk.Frame):
                 textbox.delete("1.0", tk.END)
                 cmbSubject.set("")
                 listOfResults.append(fileName)
+                listOfWantedResults.append(fileName)
                 app.pages[Page1].loadPage1()
                 app.pages[Page2].loadResultsToPage2()
                 messagebox.showinfo("Obaveštenje", "Rezultat roka je uspešno dodat.")

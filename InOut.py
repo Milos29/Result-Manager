@@ -2,46 +2,48 @@ import os
 from datetime import date
 
 
-# Returns list of all result file paths
-def loadListOfResults() -> list:
-    lst = list()
-    filePath = os.path.join("files", "listOfResults.txt")
+# Reads a file and returns list of its lines
+def readFile(directory, filename) -> list:
+    filePath = os.path.join(directory, filename)
 
     with open(filePath, "r", encoding="utf-8") as f:
-        for line in f.readlines():
-            lst.append(line.strip())
+        return [x.strip() for x in f.readlines()]
 
-    return lst
+
+# Returns list of all result file paths
+def loadListOfResults() -> list:
+    return readFile("files", "listOfResults.txt")
+
+
+def loadListOfWantedResults() -> list:
+    return readFile("files", "listOfWantedResults.txt")
 
 
 # Returns yearAdm(year of admission),year(which year of studies), number of espb that user entered
 def loadSettings() -> tuple:
-    filePath = os.path.join("files", "settings.txt")
+    s = readFile("files", "settings.txt")
 
-    with open(filePath, "r") as f:
-        s = [x.strip() for x in f.readlines()]
+    if len(s) < 3:
+        return date.today().year, 1, 60
 
-        if len(s) < 3:
-            return date.today().year, 1, 60
+    badInput = [False, False, False]
+    defaultSettings = date.today().year, 1, 60
 
-        badInput = [False, False, False]
-        defaultSettings = date.today().year, 1, 60
+    for i in range(3):
+        if len(s[i]) == 0:
+            return defaultSettings
 
-        for i in range(3):
-            if len(s[i]) == 0:
-                return defaultSettings
+        for c in s[i]:
+            if not c.isdigit():
+                badInput[i] = True
+                break
 
-            for c in s[i]:
-                if not c.isdigit():
-                    badInput[i] = True
-                    break
+    settings = list(defaultSettings)
 
-        settings = list(defaultSettings)
-
-        for i in range(3):
-            if not badInput[i]:
-                settings[i] = int(s[i])
-        return tuple(settings)
+    for i in range(3):
+        if not badInput[i]:
+            settings[i] = int(s[i])
+    return tuple(settings)
 
 
 # Returns dictionary of all subjects and their data
@@ -51,42 +53,45 @@ def loadSubjects() -> dict:
     for i in range(1, 9):
         subjects[i] = list()
 
-    filePath = os.path.join("files", "subjects.txt")
+    lines = readFile("files", "subjects.txt")
 
-    with open(filePath, "r") as f:
-        for line in f.readlines()[1:]:
-            line = line.strip().split(",")
-            subName = line[0].strip()
-            espb = int(line[1])
-            subSem = int(line[2])
-            comp = line[3].strip()
-            nick = line[4].strip()
-            subjects[subSem] = subjects[subSem] + [nick, ]
-            subjects[nick] = dict()
-            subjects[nick]["espb"] = espb
-            subjects[nick]["compulsory"] = comp
-            subjects[nick]["semester"] = subSem
-            subjects[nick]["name"] = subName
+    for line in lines[1:]:
+        line = line.strip().split(",")
+        subName = line[0].strip()
+        espb = int(line[1])
+        subSem = int(line[2])
+        comp = line[3].strip()
+        nick = line[4].strip()
+        subjects[subSem] = subjects[subSem] + [nick, ]
+        subjects[nick] = dict()
+        subjects[nick]["espb"] = espb
+        subjects[nick]["compulsory"] = comp
+        subjects[nick]["semester"] = subSem
+        subjects[nick]["name"] = subName
     return subjects
 
 
-# Saves all result filepaths
-def saveListOfResults(lst: list) -> None:
-    filePath = os.path.join("files", "listOfResults.txt")
+def writeFile(lst: list, directory: str, fileName: str) -> None:
+    filePath = os.path.join(directory, fileName)
 
     with open(filePath, "w", encoding="utf-8") as f:
         for line in lst:
             print(line, file=f)
 
 
+# Saves all result filepaths
+def saveListOfResults(lst: list) -> None:
+    writeFile(lst, "files", "listOfResults.txt")
+
+
+# Saves all wanted result filepaths
+def saveListOfWantedResults(lst: list) -> None:
+    writeFile(lst, "files", "listOfWantedResults.txt")
+
+
 # Saves yearAdm(year of admission),year(which year of studies), number of espb that user entered
 def saveSettings(yearAdm: int, year: int, espb: int) -> None:
-    filePath = os.path.join("files", "settings.txt")
-
-    with open(filePath, "w", encoding="utf-8") as f:
-        print(yearAdm, file=f)
-        print(year, file=f)
-        print(espb, file=f)
+    writeFile([yearAdm, year, espb], "files", "settings.txt")
 
 
 # Saves result to a given file
@@ -95,12 +100,22 @@ def saveResult(fileName: str, lst: str) -> int:
 
     for line in lst.split("\n"):
         line = line.strip()
+        banned = ["Н.И", "ИР", "IR"]
+        hasBannedWord = False
+        for w in banned:
+            if w in line:
+                hasBannedWord = True
+                break
+
+        if hasBannedWord:
+            continue
+
         endInd = max(indexOfLastCharThatSatisfies(line, str.isdigit), 0)
         line = line[:endInd + 1]
 
         for word in ["соба", "ЕТФ"]:
             if word in line:
-                line = line[:line.index(word) - 1]
+                line = line[:line.index(word) - 1].rstrip()
 
         # Assumes all indexes are less than 1000
         if ":" not in line and '/0' in line and line[-1].isdigit():
@@ -142,12 +157,12 @@ def loadResults(listOfResults1: list, subjects: dict, espb: int):
                 ind = line[0]
 
                 if len(ind) != 9 or ind[0] != "2" or ind[4] != "/":
-                    return -1, fileName
+                    return -1, line, fileName
 
                 try:
                     coef = float(line[-1])
                 except ValueError:
-                    return -1, fileName
+                    return -1, line, fileName
 
                 if ind not in students:
                     students[ind] = dict()
@@ -176,18 +191,18 @@ def loadResults(listOfResults1: list, subjects: dict, espb: int):
             ind = line[0]
 
             if len(ind) != 9 or ind[0] != "2" or ind[4] != "/":
-                return -1, fileName
+                return -1, line, fileName
 
             try:
                 grade = int(line[-1])
             except ValueError:
-                return -1, fileName
+                return -1, line, fileName
 
             if ind not in students and grade > 4:
                 students[ind] = dict()
                 students[ind]["coef"] = 0.0
 
-            if grade > 4 and subNick not in students[ind]:
+            if grade > 5 and subNick not in students[ind]:
                 students[ind][subNick] = grade
                 if yr > pom1:
                     students[ind]["coef"] += coef * grade * subjects[subNick]["espb"]
@@ -199,13 +214,7 @@ def loadResults(listOfResults1: list, subjects: dict, espb: int):
 
 # Returns results from a given file
 def loadResultsFile(fileName: str) -> list:
-    lst = []
-
-    with open(fileName, "r", encoding="utf-8") as f:
-        for line in f.readlines():
-            lst.append(line.strip())
-
-        return lst
+    return readFile("", fileName)
 
 
 # Deletes given file
